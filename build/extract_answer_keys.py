@@ -49,6 +49,31 @@ DROP_DUPLICATE_ROWS = {
     ("9", "session2"): {34, 61, 68},
 }
 
+# Preguntas que existen como numero impreso en el cuadernillo (y por lo tanto
+# como columna en la hoja de respuestas / ZipGrade) pero que NO tienen
+# opciones de respuesta reales -- es un error de diagramacion del cuadernillo,
+# no un duplicado de fila. Se excluyen del area (no se cuentan ni se
+# califican). Confirmado para grado 9 sesion 1: la pregunta 23 es solo el
+# texto de contexto de la pregunta 24 ("Laura tiene 16 años..."), sin
+# opciones A-D propias. El 79% de los estudiantes (152/193) la dejo en
+# blanco; el resto se confundio y marco algo ahi de todas formas.
+# clave: (grado, sesion) -> set de preguntas reales a excluir
+VOID_QUESTIONS = {
+    ("9", "session1"): {23},
+}
+
+# Como la fila fantasma de la pregunta 23 tambien desplazo en 1 la CLAVE
+# (no solo el conteo) de las preguntas 24-27 en la tabla original -- la fila
+# vieja "23"=D en realidad es la clave real de la pregunta 24, la vieja
+# "24"=A es la clave real de la 25, etc. -- se sobreescriben directamente
+# con la clave ya realineada (la vieja fila 27=C, que sobra, se descarta).
+# Confirmado con el consenso de respuestas de los estudiantes: 81% eligio D
+# en la 24, 89% eligio A en la 25, 87% eligio C en la 26, 89% eligio D en la 27.
+# clave: (grado, sesion) -> {pregunta real: clave correcta}
+CLAVE_OVERRIDES = {
+    ("9", "session1"): {24: "D", 25: "A", 26: "C", 27: "D"},
+}
+
 
 def norm_clave(v):
     if v is None:
@@ -131,6 +156,18 @@ def build_areas_and_key(rows, grade, session_name):
         print(f"  grado {grade} {session_name}: eliminadas {len(dropped)} filas duplicadas "
               f"({dropped}), renumerado a {real_num} preguntas reales")
 
+    overrides = CLAVE_OVERRIDES.get((grade, session_name), {})
+    for q, clave in overrides.items():
+        key[str(q)] = clave
+    if overrides:
+        print(f"  grado {grade} {session_name}: clave realineada manualmente para preguntas {sorted(overrides)}")
+
+    void = VOID_QUESTIONS.get((grade, session_name), set())
+    for q in void:
+        key.pop(str(q), None)
+    if void:
+        print(f"  grado {grade} {session_name}: preguntas anuladas (sin opciones reales) {sorted(void)}")
+
     return areas, key
 
 
@@ -145,22 +182,30 @@ def main():
             s1_areas, s1_key = build_areas_and_key(s1_rows, grade, "session1")
             s2_areas, s2_key = build_areas_and_key(s2_rows, grade, "session2")
 
+            # "total" = ultima columna fisica a leer del CSV de ZipGrade (el
+            # maximo "end" de area), NO len(key) -- si una pregunta en medio
+            # del rango quedo anulada (VOID_QUESTIONS), len(key) seria menor
+            # que el numero de columnas reales y truncaria la lectura de las
+            # preguntas siguientes.
+            s1_total = max((a["end"] for a in s1_areas), default=0)
+            s2_total = max((a["end"] for a in s2_areas), default=0)
+
             result[grade] = {
                 "session1": {
-                    "total": len(s1_key),
+                    "total": s1_total,
                     "areas": s1_areas,
                     "key": s1_key,
                 },
                 "session2": {
-                    "total": len(s2_key),
+                    "total": s2_total,
                     "areas": s2_areas,
                     "key": s2_key,
                 },
             }
             print(
-                f"Grado {grade}: sesion1={len(s1_key)}q "
-                f"({len(s1_areas)} areas), sesion2={len(s2_key)}q "
-                f"({len(s2_areas)} areas)"
+                f"Grado {grade}: sesion1={s1_total}q ({len(s1_key)} con clave, "
+                f"{len(s1_areas)} areas), sesion2={s2_total}q ({len(s2_key)} con clave, "
+                f"{len(s2_areas)} areas)"
             )
 
     OUT_PATH.write_text(json.dumps(result, ensure_ascii=False, indent=2), encoding="utf-8")

@@ -38,6 +38,7 @@ ZIP_S2 = BASE / "Resultados_sesion2.zip"
 # posteriores al desfase, asi que hay que recalificar con la clave corregida.
 RESP_LETRA_FILES = {
     ("9", "session2"): BASE / "NovenoIIIP-S2-all-Nombre-ResptLetra-2026-09-08 19_12_34.csv",
+    ("9", "session1"): BASE / "Noveno_sesion_1-all-Quiz Format 2026-09-08 01_12-2026-09-08 18_14_49 - Noveno_sesion_1-all-Quiz Format 2026-09-08 01_12-2026-09-08 18_14_49.csv",
 }
 
 BUILD_DIR = Path(__file__).parent
@@ -214,11 +215,15 @@ def score_student_session(row, areas, n_questions, key, from_letters=False):
 
     areas_out = []
     total_correct = 0.0
+    total_preguntas_validas = 0
     for a in areas:
-        qs = range(a["start"], a["end"] + 1)
+        # las preguntas sin clave (VOID_QUESTIONS: existen como columna pero
+        # no tienen opciones reales de respuesta) se excluyen del area
+        qs = [q for q in range(a["start"], a["end"] + 1) if key.get(str(q)) is not None]
         correct = sum(points[q] for q in qs)
-        total = a["end"] - a["start"] + 1
+        total = len(qs)
         total_correct += correct
+        total_preguntas_validas += total
         preguntas = [
             {"n": q, "correcta": points[q] >= 0.999, "clave": key.get(str(q))}
             for q in qs
@@ -232,7 +237,7 @@ def score_student_session(row, areas, n_questions, key, from_letters=False):
                 "preguntas": preguntas,
             }
         )
-    pct_total = round(total_correct / n_questions * 100, 1) if n_questions else 0.0
+    pct_total = round(total_correct / total_preguntas_validas * 100, 1) if total_preguntas_validas else 0.0
     return areas_out, pct_total
 
 
