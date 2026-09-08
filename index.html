@@ -88,6 +88,7 @@
   .stat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 16px; }
   .stat-box { background: #f4f6f6; border-radius: 10px; padding: 14px; text-align: center; }
   .stat-box .num { font-size: 1.5rem; font-weight: 700; color: var(--verde); }
+  .stat-box .num .sd { font-size: .85rem; font-weight: 600; color: var(--texto2); }
   .stat-box .lbl { font-size: .75rem; color: var(--texto2); }
 
   .bar-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; font-size: .85rem; }
@@ -95,6 +96,29 @@
   .bar-track { flex: 1; background: var(--borde); border-radius: 6px; height: 14px; overflow: hidden; }
   .bar-fill { height: 100%; background: linear-gradient(90deg, var(--verde) 0%, var(--verde2) 100%); }
   .bar-pct { width: 48px; text-align: right; font-weight: 700; }
+
+  .chart-wrap { position: relative; height: 230px; margin-bottom: 10px; }
+  .chart-wrap.chico { height: 170px; }
+  .chart-caption { color: var(--texto2); font-size: .78rem; margin: -4px 0 14px; }
+
+  .boxplot-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; font-size: .8rem; }
+  .boxplot-lbl { width: 150px; flex-shrink: 0; }
+  .boxplot-track { position: relative; flex: 1; height: 20px; background: #f4f6f6; border-radius: 4px; }
+  .boxplot-whisker { position: absolute; top: 50%; height: 2px; background: #b2bec3; transform: translateY(-50%); }
+  .boxplot-box { position: absolute; top: 2px; bottom: 2px; border-radius: 3px; opacity: .8; }
+  .boxplot-median { position: absolute; top: 0; bottom: 0; width: 2px; background: #2c3e50; }
+  .boxplot-vals { width: 130px; text-align: right; color: var(--texto2); flex-shrink: 0; }
+
+  #loadingOverlay {
+    position: fixed; inset: 0; background: rgba(255,255,255,.9);
+    display: flex; align-items: center; justify-content: center; flex-direction: column;
+    gap: 12px; z-index: 200; color: var(--texto2); font-size: .9rem;
+  }
+  .spinner {
+    width: 40px; height: 40px; border: 4px solid var(--borde);
+    border-top-color: var(--verde); border-radius: 50%; animation: spin .8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
 
   .pill { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: .72rem; font-weight: 700; }
   .pill.ok { background: #d4efdf; color: var(--ok); }
@@ -127,13 +151,14 @@
 
   @media print {
     body { background: white; padding: 0; }
-    .tabs, header, #tab-buscar, #tab-promedios, #tab-csv, .no-print { display: none !important; }
+    .tabs, header, #tab-buscar, #tab-promedios, #tab-docente, #tab-grupo, #tab-csv, #loadingOverlay, .no-print { display: none !important; }
     .modal-overlay { position: static; background: none; padding: 0; }
     .modal-box { box-shadow: none; max-width: 100%; }
   }
 </style>
 </head>
 <body>
+<div id="loadingOverlay"><div class="spinner"></div><div>Cargando resultados…</div></div>
 <div class="wrap">
   <header>
     <h1>📊 Consulta de Resultados — III Periodo 2026</h1>
@@ -184,8 +209,11 @@
   <section class="panel" id="tab-promedios" hidden>
     <h2>Promedios generales del colegio</h2>
     <div class="stat-grid" id="statColegio"></div>
+    <h3>Distribución de notas del colegio (promedio general por estudiante)</h3>
+    <div class="chart-wrap"><canvas id="chartHistColegio"></canvas></div>
     <h3>Promedio por grado</h3>
-    <div id="barsGrado"></div>
+    <p class="chart-caption">σ = desviación estándar: entre más alta, más dispersos están los resultados del grado.</p>
+    <div class="chart-wrap"><canvas id="chartGrado"></canvas></div>
     <h3>Promedio por área (elige grado y sesión)</h3>
     <div class="row">
       <div class="field">
@@ -200,7 +228,7 @@
         </select>
       </div>
     </div>
-    <div id="barsArea"></div>
+    <div class="chart-wrap tall" id="chartAreaWrap"><canvas id="chartArea"></canvas></div>
   </section>
 
   <!-- PANEL DOCENTE (por area) -->
@@ -219,7 +247,12 @@
     </div>
     <div class="stat-grid" id="docStats"></div>
     <h3>Promedio por grupo</h3>
-    <div id="docBarsGrupo"></div>
+    <p class="chart-caption">σ = desviación estándar del grupo en esta área.</p>
+    <div class="chart-wrap tall" id="docChartWrap"><canvas id="chartDocGrupo"></canvas></div>
+    <h3>Distribución por grupo (mín · cuartiles · máx)</h3>
+    <div id="docBoxplots"></div>
+    <h3>Distribución de notas en el área (todo el grado)</h3>
+    <div class="chart-wrap"><canvas id="chartDocHist"></canvas></div>
     <h3>Ranking de estudiantes</h3>
     <div style="max-height:420px;overflow-y:auto">
       <table>
@@ -244,10 +277,15 @@
       </div>
     </div>
     <div class="stat-grid" id="grpStats"></div>
+    <h3>Distribución de notas del grupo (promedio general por estudiante)</h3>
+    <div class="chart-wrap chico"><canvas id="chartGrpHist"></canvas></div>
     <h3>Promedio por área — Sesión 1</h3>
-    <div id="grpBarsS1"></div>
+    <p class="chart-caption">σ = desviación estándar dentro del grupo en esa área.</p>
+    <div class="chart-wrap tall" id="grpChartWrapS1"><canvas id="chartGrpS1"></canvas></div>
+    <div id="grpBoxplotsS1"></div>
     <h3>Promedio por área — Sesión 2</h3>
-    <div id="grpBarsS2"></div>
+    <div class="chart-wrap tall" id="grpChartWrapS2"><canvas id="chartGrpS2"></canvas></div>
+    <div id="grpBoxplotsS2"></div>
     <h3>Estudiantes del grupo (ordenados por promedio general)</h3>
     <div style="max-height:420px;overflow-y:auto">
       <table>
@@ -296,13 +334,138 @@
   </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
 <script>
 let ESTUDIANTES = [];
 let PROMEDIOS = null;
 let META = null;
+const CHARTS = {};
 
 function norm(s) {
   return (s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+}
+
+// ---------- ESTADÍSTICA ----------
+function media(arr) {
+  return arr.length ? arr.reduce((a, b) => a + b, 0) / arr.length : 0;
+}
+function desviacion(arr) {
+  if (arr.length < 2) return 0;
+  const m = media(arr);
+  return Math.sqrt(arr.reduce((s, x) => s + (x - m) ** 2, 0) / arr.length);
+}
+function cuartiles(arr) {
+  if (!arr.length) return null;
+  const s = [...arr].sort((a, b) => a - b);
+  const pct = p => {
+    const idx = p * (s.length - 1);
+    const lo = Math.floor(idx), hi = Math.min(lo + 1, s.length - 1);
+    const frac = idx - lo;
+    return s[lo] + (s[hi] - s[lo]) * frac;
+  };
+  return { min: s[0], q1: pct(0.25), mediana: pct(0.5), q3: pct(0.75), max: s[s.length - 1] };
+}
+function colorNivel(pct) {
+  if (pct >= 60) return '#27ae60';
+  if (pct >= 40) return '#f39c12';
+  return '#e74c3c';
+}
+
+// ---------- CHART.JS: helpers reutilizables ----------
+Chart.register({
+  id: 'valueLabels',
+  afterDatasetsDraw(chart) {
+    chart.data.datasets.forEach((dataset, dsIndex) => {
+      if (!dataset.customLabels) return;
+      const meta = chart.getDatasetMeta(dsIndex);
+      const { ctx } = chart;
+      meta.data.forEach((bar, idx) => {
+        const label = dataset.customLabels[idx];
+        if (label == null) return;
+        ctx.save();
+        ctx.fillStyle = '#2c3e50';
+        ctx.font = "600 11px 'Segoe UI'";
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(label, bar.x + 6, bar.y);
+        ctx.restore();
+      });
+    });
+  }
+});
+
+function graficoBarrasH(canvasId, etiquetas, valores, sds) {
+  const el = document.getElementById(canvasId);
+  if (!el) return;
+  if (CHARTS[canvasId]) CHARTS[canvasId].destroy();
+  CHARTS[canvasId] = new Chart(el.getContext('2d'), {
+    type: 'bar',
+    data: {
+      labels: etiquetas,
+      datasets: [{
+        data: valores,
+        backgroundColor: valores.map(colorNivel),
+        borderRadius: 6,
+        barPercentage: .7,
+        customLabels: valores.map((v, i) => (sds && sds[i] != null) ? `${v}%  (σ ${sds[i]})` : `${v}%`),
+      }]
+    },
+    options: {
+      indexAxis: 'y',
+      responsive: true,
+      maintainAspectRatio: false,
+      layout: { padding: { right: 90 } },
+      scales: {
+        x: { min: 0, max: 100, grid: { color: '#f0f2f2' } },
+        y: { grid: { display: false } },
+      },
+      plugins: { legend: { display: false } },
+    }
+  });
+}
+
+function graficoHistograma(canvasId, valores) {
+  const el = document.getElementById(canvasId);
+  if (!el) return;
+  const buckets = new Array(10).fill(0);
+  valores.forEach(v => {
+    let i = Math.min(9, Math.max(0, Math.floor(v / 10)));
+    buckets[i]++;
+  });
+  const etiquetas = buckets.map((_, i) => `${i * 10}-${i * 10 + 10}`);
+  if (CHARTS[canvasId]) CHARTS[canvasId].destroy();
+  CHARTS[canvasId] = new Chart(el.getContext('2d'), {
+    type: 'bar',
+    data: { labels: etiquetas, datasets: [{ data: buckets, backgroundColor: '#1565C0', borderRadius: 4 }] },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        y: { beginAtZero: true, ticks: { stepSize: 1, precision: 0 }, grid: { color: '#f0f2f2' } },
+        x: { grid: { display: false }, title: { display: true, text: '% obtenido', font: { size: 10 } } },
+      },
+      plugins: { legend: { display: false } },
+    }
+  });
+}
+
+function boxplotFila(etiqueta, valores) {
+  if (!valores.length) return '';
+  const q = cuartiles(valores);
+  const color = colorNivel(q.mediana);
+  return `<div class="boxplot-row">
+    <div class="boxplot-lbl">${etiqueta}</div>
+    <div class="boxplot-track">
+      <div class="boxplot-whisker" style="left:${q.min}%; width:${Math.max(0, q.max - q.min)}%"></div>
+      <div class="boxplot-box" style="left:${q.q1}%; width:${Math.max(0.5, q.q3 - q.q1)}%; background:${color}"></div>
+      <div class="boxplot-median" style="left:${q.mediana}%"></div>
+    </div>
+    <div class="boxplot-vals">mín ${q.min.toFixed(0)} · med ${q.mediana.toFixed(0)} · máx ${q.max.toFixed(0)}</div>
+  </div>`;
+}
+
+function sdBadge(sd) {
+  return sd != null ? ` <span class="sd">±${sd}</span>` : '';
 }
 
 async function cargarDatos() {
@@ -316,6 +479,7 @@ async function cargarDatos() {
   META = meta;
   poblarSelects();
   pintarPromedios();
+  document.getElementById('loadingOverlay').style.display = 'none';
 }
 
 function poblarSelects() {
@@ -507,20 +671,22 @@ function renderInforme() {
 // ---------- PROMEDIOS ----------
 function pintarPromedios() {
   const c = PROMEDIOS.colegio;
+  const generales = ESTUDIANTES.map(e => e.porcentaje_general).filter(v => v != null);
+  const sdColegio = Math.round(desviacion(generales) * 10) / 10;
   document.getElementById('statColegio').innerHTML = `
-    <div class="stat-box"><div class="num">${c.promedio_general}%</div><div class="lbl">Promedio general</div></div>
+    <div class="stat-box"><div class="num">${c.promedio_general}%<div class="sd">σ ${sdColegio}</div></div><div class="lbl">Promedio general</div></div>
     <div class="stat-box"><div class="num">${c.por_sesion.session1 ?? '—'}%</div><div class="lbl">Sesión 1</div></div>
     <div class="stat-box"><div class="num">${c.por_sesion.session2 ?? '—'}%</div><div class="lbl">Sesión 2</div></div>
   `;
+  graficoHistograma('chartHistColegio', generales);
+
   const grados = META.grados;
-  document.getElementById('barsGrado').innerHTML = grados.map(g => {
-    const pct = PROMEDIOS.por_grado[g] ?? 0;
-    return `<div class="bar-row">
-      <div class="lbl">Grado ${g}</div>
-      <div class="bar-track"><div class="bar-fill" style="width:${pct}%"></div></div>
-      <div class="bar-pct">${pct}%</div>
-    </div>`;
-  }).join('');
+  const valoresGrado = grados.map(g => PROMEDIOS.por_grado[g] ?? 0);
+  const sdsGrado = grados.map(g => {
+    const vals = ESTUDIANTES.filter(e => e.grado === g && e.porcentaje_general != null).map(e => e.porcentaje_general);
+    return Math.round(desviacion(vals) * 10) / 10;
+  });
+  graficoBarrasH('chartGrado', grados.map(g => `Grado ${g}`), valoresGrado, sdsGrado);
 }
 
 function pintarBarsArea() {
@@ -529,14 +695,15 @@ function pintarBarsArea() {
   if (!grado) return;
   const areas = (META.areas_por_grado[grado] && META.areas_por_grado[grado][sesion]) || [];
   const datos = (PROMEDIOS.por_area[grado] && PROMEDIOS.por_area[grado][sesion]) || {};
-  document.getElementById('barsArea').innerHTML = areas.map(a => {
-    const pct = datos[a] ?? 0;
-    return `<div class="bar-row">
-      <div class="lbl">${a}</div>
-      <div class="bar-track"><div class="bar-fill" style="width:${pct}%"></div></div>
-      <div class="bar-pct">${pct}%</div>
-    </div>`;
-  }).join('');
+  const valores = areas.map(a => datos[a] ?? 0);
+  const sds = areas.map(a => {
+    const vals = ESTUDIANTES.filter(e => e.grado === grado && e.sesiones[sesion])
+      .map(e => e.sesiones[sesion].areas.find(x => x.area === a))
+      .filter(Boolean).map(x => x.porcentaje);
+    return Math.round(desviacion(vals) * 10) / 10;
+  });
+  document.getElementById('chartAreaWrap').style.height = Math.max(230, areas.length * 42) + 'px';
+  graficoBarrasH('chartArea', areas, valores, sds);
 }
 
 // ---------- PANEL DOCENTE (por area) ----------
@@ -571,27 +738,29 @@ function pintarPanelDocente() {
     return a ? { nombre: e.nombre, grupo: e.grupo, correctas: a.correctas, total: a.total, pct: a.porcentaje } : null;
   }).filter(Boolean).sort((a, b) => b.pct - a.pct);
 
-  const promGrado = filas.length ? Math.round(filas.reduce((s, f) => s + f.pct, 0) / filas.length * 10) / 10 : 0;
+  const pctsGrado = filas.map(f => f.pct);
+  const promGrado = pctsGrado.length ? Math.round(media(pctsGrado) * 10) / 10 : 0;
+  const sdGrado = Math.round(desviacion(pctsGrado) * 10) / 10;
   const porGrupo = {};
   filas.forEach(f => { (porGrupo[f.grupo] = porGrupo[f.grupo] || []).push(f.pct); });
   const gruposOrdenados = Object.entries(porGrupo)
-    .map(([g, v]) => [g, Math.round(v.reduce((s, x) => s + x, 0) / v.length * 10) / 10])
+    .map(([g, v]) => [g, Math.round(media(v) * 10) / 10, v])
     .sort((a, b) => b[1] - a[1]);
   const mejor = gruposOrdenados[0];
   const peor = gruposOrdenados[gruposOrdenados.length - 1];
 
   document.getElementById('docStats').innerHTML = `
-    <div class="stat-box"><div class="num">${promGrado}%</div><div class="lbl">Promedio grado ${grado} en ${area}</div></div>
+    <div class="stat-box"><div class="num">${promGrado}%${sdBadge(sdGrado)}</div><div class="lbl">Promedio grado ${grado} en ${area}</div></div>
     <div class="stat-box"><div class="num">${mejor ? mejor[0] : '—'}</div><div class="lbl">Mejor grupo (${mejor ? mejor[1] : '—'}%)</div></div>
     <div class="stat-box"><div class="num">${peor ? peor[0] : '—'}</div><div class="lbl">Grupo a reforzar (${peor ? peor[1] : '—'}%)</div></div>
   `;
 
-  document.getElementById('docBarsGrupo').innerHTML = gruposOrdenados.map(([g, pct]) => `
-    <div class="bar-row">
-      <div class="lbl">${g}</div>
-      <div class="bar-track"><div class="bar-fill" style="width:${pct}%"></div></div>
-      <div class="bar-pct">${pct}%</div>
-    </div>`).join('');
+  document.getElementById('docChartWrap').style.height = Math.max(200, gruposOrdenados.length * 40) + 'px';
+  graficoBarrasH('chartDocGrupo', gruposOrdenados.map(g => g[0]), gruposOrdenados.map(g => g[1]),
+    gruposOrdenados.map(g => Math.round(desviacion(g[2]) * 10) / 10));
+
+  document.getElementById('docBoxplots').innerHTML = gruposOrdenados.map(([g, , vals]) => boxplotFila(g, vals)).join('');
+  graficoHistograma('chartDocHist', pctsGrado);
 
   document.getElementById('docTablaBody').innerHTML = filas.map((f, i) => `
     <tr>
@@ -625,30 +794,36 @@ function pintarPanelGrupo() {
   const estudiantesGrupo = ESTUDIANTES.filter(e => e.grupo === grupo)
     .sort((a, b) => (b.porcentaje_general ?? -1) - (a.porcentaje_general ?? -1));
 
+  const generalesGrupo = estudiantesGrupo.map(e => e.porcentaje_general).filter(v => v != null);
   const promGrupo = PROMEDIOS.por_grupo[grupo] ?? 0;
+  const sdGrupo = Math.round(desviacion(generalesGrupo) * 10) / 10;
   const promColegio = PROMEDIOS.colegio.promedio_general ?? 0;
   document.getElementById('grpStats').innerHTML = `
-    <div class="stat-box"><div class="num">${promGrupo}%</div><div class="lbl">Promedio del grupo ${grupo}</div></div>
+    <div class="stat-box"><div class="num">${promGrupo}%${sdBadge(sdGrupo)}</div><div class="lbl">Promedio del grupo ${grupo}</div></div>
     <div class="stat-box"><div class="num">${estudiantesGrupo.length}</div><div class="lbl">Estudiantes</div></div>
     <div class="stat-box"><div class="num">${promColegio}%</div><div class="lbl">Promedio del colegio</div></div>
   `;
+  graficoHistograma('chartGrpHist', generalesGrupo);
 
   const areasS1 = (META.areas_por_grado[grado] || {}).session1 || [];
   const areasS2 = (META.areas_por_grado[grado] || {}).session2 || [];
-  const datosS1 = (PROMEDIOS.por_grupo_area[grupo] || {}).session1 || {};
-  const datosS2 = (PROMEDIOS.por_grupo_area[grupo] || {}).session2 || {};
 
-  const pintarBarrasArea = (areas, datos) => areas.map(a => {
-    const pct = datos[a] ?? 0;
-    return `<div class="bar-row">
-      <div class="lbl">${a}</div>
-      <div class="bar-track"><div class="bar-fill" style="width:${pct}%"></div></div>
-      <div class="bar-pct">${pct}%</div>
-    </div>`;
-  }).join('');
+  const valoresPorArea = (areas, sesion) => areas.map(a =>
+    estudiantesGrupo.filter(e => e.sesiones[sesion])
+      .map(e => e.sesiones[sesion].areas.find(x => x.area === a))
+      .filter(Boolean).map(x => x.porcentaje)
+  );
 
-  document.getElementById('grpBarsS1').innerHTML = pintarBarrasArea(areasS1, datosS1);
-  document.getElementById('grpBarsS2').innerHTML = pintarBarrasArea(areasS2, datosS2);
+  const pintarSesionGrupo = (areas, sesion, chartId, wrapId, boxId) => {
+    const valoresPorAreaArr = valoresPorArea(areas, sesion);
+    const promedios = valoresPorAreaArr.map(v => Math.round(media(v) * 10) / 10);
+    const sds = valoresPorAreaArr.map(v => Math.round(desviacion(v) * 10) / 10);
+    document.getElementById(wrapId).style.height = Math.max(200, areas.length * 42) + 'px';
+    graficoBarrasH(chartId, areas, promedios, sds);
+    document.getElementById(boxId).innerHTML = areas.map((a, i) => boxplotFila(a, valoresPorAreaArr[i])).join('');
+  };
+  pintarSesionGrupo(areasS1, 'session1', 'chartGrpS1', 'grpChartWrapS1', 'grpBoxplotsS1');
+  pintarSesionGrupo(areasS2, 'session2', 'chartGrpS2', 'grpChartWrapS2', 'grpBoxplotsS2');
 
   document.getElementById('grpTablaBody').innerHTML = estudiantesGrupo.map((e, i) => `
     <tr>
@@ -702,6 +877,11 @@ document.querySelectorAll('.tab-btn[data-tab]').forEach(btn => {
     ['buscar', 'promedios', 'docente', 'grupo', 'csv'].forEach(t => {
       document.getElementById('tab-' + t).hidden = (t !== btn.dataset.tab);
     });
+    // los gráficos creados mientras su pestaña estaba oculta quedan con tamaño 0;
+    // se vuelven a pintar (no a repoblar) cada vez que su pestaña se activa.
+    if (btn.dataset.tab === 'promedios') { pintarPromedios(); pintarBarsArea(); }
+    if (btn.dataset.tab === 'docente') pintarPanelDocente();
+    if (btn.dataset.tab === 'grupo') pintarPanelGrupo();
   });
 });
 
