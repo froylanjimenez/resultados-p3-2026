@@ -33,6 +33,22 @@ MANUAL_FIXES = {
     ("6", "session2", 68): "B",
 }
 
+# Filas del xlsx que son duplicados exactos (mismo pensamiento/competencia/
+# clave/retroalimentacion que la fila anterior) y que desfasan la numeración
+# real del cuadernillo impreso a partir de ese punto. Confirmado para grado 9
+# sesión 2 con 3 evidencias independientes: (1) el cuadernillo impreso
+# (Cuadernillo_N2_Grado9_CESUM.pdf) solo llega hasta la pregunta 65, con
+# ARTÍSTICA=6 preguntas (28-33, no 28-34), RELIGION=6 (54-59, no 55-61) y
+# TECNOLOGÍA=6 (60-65, no 62-68); (2) las filas 33/34, 60/61 y 67/68 de la
+# tabla de respuestas son copias exactas fila-a-fila; (3) en el CSV de
+# ZipGrade con las respuestas letra por letra, las columnas #66-#68 quedan en
+# blanco para ~97-99% de los estudiantes (no hubo pregunta física ahí).
+# clave: (grado, sesion) -> set de N° PREGUNTA (numeración original del xlsx)
+# a eliminar; todo lo posterior se renumera corriendo la numeración real.
+DROP_DUPLICATE_ROWS = {
+    ("9", "session2"): {34, 61, 68},
+}
+
 
 def norm_clave(v):
     if v is None:
@@ -70,6 +86,9 @@ def build_areas_and_key(rows, grade, session_name):
     current_area = None
     current_start = None
     prev_num = None
+    drop_set = DROP_DUPLICATE_ROWS.get((grade, session_name), set())
+    dropped = []
+    real_num = 0  # numeración real, corrida tras eliminar duplicados
 
     def close_area(end_num):
         if current_area is not None:
@@ -78,23 +97,39 @@ def build_areas_and_key(rows, grade, session_name):
             )
 
     for row in rows:
-        area, num, _pensamiento, _competencia, clave, _retro = row[:6]
-        if num is None:
+        area, orig_num, _pensamiento, _competencia, clave, _retro = row[:6]
+        if orig_num is None:
             continue
-        num = int(num)
+        orig_num = int(orig_num)
+
+        if orig_num in drop_set:
+            dropped.append(orig_num)
+            continue
+
+        real_num += 1
         if area:
             close_area(prev_num)
             current_area = str(area).strip()
-            current_start = num
+            current_start = real_num
         c = norm_clave(clave)
-        fix = MANUAL_FIXES.get((grade, session_name, num))
+        fix = MANUAL_FIXES.get((grade, session_name, real_num))
         if fix:
             c = fix
         if c is None:
-            print(f"AVISO: grado {grade} {session_name} pregunta {num} sin clave")
-        key[str(num)] = c
-        prev_num = num
+            print(f"AVISO: grado {grade} {session_name} pregunta {real_num} sin clave")
+        key[str(real_num)] = c
+        prev_num = real_num
     close_area(prev_num)
+
+    if drop_set:
+        faltantes = drop_set - set(dropped)
+        if faltantes:
+            raise ValueError(
+                f"grado {grade} {session_name}: no se encontraron las filas a "
+                f"eliminar {faltantes} (¿cambió el archivo fuente?)"
+            )
+        print(f"  grado {grade} {session_name}: eliminadas {len(dropped)} filas duplicadas "
+              f"({dropped}), renumerado a {real_num} preguntas reales")
 
     return areas, key
 

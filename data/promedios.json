@@ -1,9 +1,9 @@
 {
   "colegio": {
-    "promedio_general": 49.0,
+    "promedio_general": 50.5,
     "por_sesion": {
       "session1": 49.9,
-      "session2": 48.1
+      "session2": 51.2
     },
     "n_estudiantes": 1107
   },
@@ -11,7 +11,7 @@
     "6": 46.0,
     "7": 56.7,
     "8": 60.0,
-    "9": 49.2,
+    "9": 57.7,
     "10": 38.6,
     "11": 40.1
   },
@@ -34,12 +34,12 @@
     "8E": 57.6,
     "8A": 62.4,
     "8B": 59.6,
-    "9D": 46.3,
-    "9A": 49.2,
-    "9B": 50.6,
-    "9C": 50.6,
-    "9F": 46.4,
-    "9E": 52.4,
+    "9D": 53.7,
+    "9A": 57.3,
+    "9B": 61.7,
+    "9C": 59.1,
+    "9F": 53.5,
+    "9E": 60.9,
     "10A": 39.1,
     "10D": 39.6,
     "10B": 38.6,
@@ -116,10 +116,10 @@
       "session2": {
         "GESTION": 85.3,
         "CIENCIAS NATURALES": 56.6,
-        "ARTÍSTICA": 51.3,
-        "INGLÉS": 25.8,
-        "RELIGION": 12.9,
-        "TECNOLOGÍA": 12.8
+        "ARTÍSTICA": 53.9,
+        "INGLÉS": 48.0,
+        "RELIGION": 80.2,
+        "TECNOLOGÍA": 54.6
       }
     },
     "10": {
@@ -479,10 +479,10 @@
       "session2": {
         "GESTION": 85.7,
         "CIENCIAS NATURALES": 52.3,
-        "ARTÍSTICA": 47.9,
-        "INGLÉS": 28.2,
-        "RELIGION": 12.0,
-        "TECNOLOGÍA": 15.2
+        "ARTÍSTICA": 50.5,
+        "INGLÉS": 44.7,
+        "RELIGION": 79.6,
+        "TECNOLOGÍA": 50.0
       }
     },
     "9A": {
@@ -496,10 +496,10 @@
       "session2": {
         "GESTION": 84.4,
         "CIENCIAS NATURALES": 55.9,
-        "ARTÍSTICA": 53.4,
-        "INGLÉS": 27.1,
-        "RELIGION": 12.6,
-        "TECNOLOGÍA": 13.5
+        "ARTÍSTICA": 55.4,
+        "INGLÉS": 47.8,
+        "RELIGION": 82.8,
+        "TECNOLOGÍA": 48.5
       }
     },
     "9B": {
@@ -513,10 +513,10 @@
       "session2": {
         "GESTION": 81.4,
         "CIENCIAS NATURALES": 61.2,
-        "ARTÍSTICA": 55.0,
-        "INGLÉS": 24.7,
-        "RELIGION": 12.1,
-        "TECNOLOGÍA": 14.3
+        "ARTÍSTICA": 55.6,
+        "INGLÉS": 59.2,
+        "RELIGION": 83.3,
+        "TECNOLOGÍA": 65.7
       }
     },
     "9C": {
@@ -530,10 +530,10 @@
       "session2": {
         "GESTION": 89.1,
         "CIENCIAS NATURALES": 56.5,
-        "ARTÍSTICA": 48.3,
-        "INGLÉS": 25.1,
-        "RELIGION": 14.7,
-        "TECNOLOGÍA": 10.5
+        "ARTÍSTICA": 51.0,
+        "INGLÉS": 45.3,
+        "RELIGION": 81.9,
+        "TECNOLOGÍA": 58.8
       }
     },
     "9F": {
@@ -547,10 +547,10 @@
       "session2": {
         "GESTION": 81.3,
         "CIENCIAS NATURALES": 48.4,
-        "ARTÍSTICA": 47.8,
-        "INGLÉS": 23.8,
-        "RELIGION": 14.3,
-        "TECNOLOGÍA": 11.3
+        "ARTÍSTICA": 50.0,
+        "INGLÉS": 43.8,
+        "RELIGION": 72.4,
+        "TECNOLOGÍA": 50.0
       }
     },
     "9E": {
@@ -564,10 +564,10 @@
       "session2": {
         "GESTION": 89.7,
         "CIENCIAS NATURALES": 65.0,
-        "ARTÍSTICA": 55.2,
-        "INGLÉS": 25.9,
-        "RELIGION": 11.8,
-        "TECNOLOGÍA": 11.8
+        "ARTÍSTICA": 61.5,
+        "INGLÉS": 46.2,
+        "RELIGION": 79.9,
+        "TECNOLOGÍA": 53.5
       }
     },
     "10A": {

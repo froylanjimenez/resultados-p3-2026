@@ -29,6 +29,17 @@ ROSTER_XLSX = BASE / "LISTADO DE 6º A 11º.xlsx"
 ZIP_S1 = BASE / "Resultados_sesion_1.zip"
 ZIP_S2 = BASE / "Resultados_sesion2.zip"
 
+# Para (grado, sesion) que aparezcan aqui, se recalifica desde la respuesta
+# letra-por-letra del estudiante (comparada contra answer_keys.json) en vez
+# de confiar en "Points Earned" de ZipGrade. Necesario cuando la clave que
+# se subio originalmente a ZipGrade para calificar tenia una desalineacion
+# de numeracion (ver DROP_DUPLICATE_ROWS en extract_answer_keys.py) -- los
+# puntos ya calculados por ZipGrade quedaron mal para las preguntas
+# posteriores al desfase, asi que hay que recalificar con la clave corregida.
+RESP_LETRA_FILES = {
+    ("9", "session2"): BASE / "NovenoIIIP-S2-all-Nombre-ResptLetra-2026-09-08 19_12_34.csv",
+}
+
 BUILD_DIR = Path(__file__).parent
 ANSWER_KEYS_PATH = BUILD_DIR / "answer_keys.json"
 OVERRIDES_PATH = BUILD_DIR / "overrides.json"
@@ -170,20 +181,36 @@ def load_zipgrade_csv(zip_path, grade, session):
     return list(csv.DictReader(io.StringIO(raw)))
 
 
+def load_response_letras_csv(path):
+    with open(path, encoding="utf-8-sig") as f:
+        return list(csv.DictReader(f))
+
+
 # ---------------------------------------------------------------------------
 # 4. Cruce + calificacion
 # ---------------------------------------------------------------------------
-def score_student_session(row, areas, n_questions, key):
+def score_student_session(row, areas, n_questions, key, from_letters=False):
     """A partir de una fila de ZipGrade (dict) y la lista de areas
-    [{area,start,end}], calcula el detalle por area."""
+    [{area,start,end}], calcula el detalle por area.
+
+    Si from_letters=True, la fila trae "#N Student Response" (la letra que
+    marco el estudiante) y se recalifica comparando contra `key`, en vez de
+    confiar en "#N Points Earned" (util cuando la clave subida a ZipGrade
+    tenia una desalineacion de numeracion -- ver RESP_LETRA_FILES)."""
     points = {}
-    for q in range(1, n_questions + 1):
-        col = f"#{q} Points Earned"
-        val = row.get(col)
-        try:
-            points[q] = float(val) if val not in (None, "") else 0.0
-        except ValueError:
-            points[q] = 0.0
+    if from_letters:
+        for q in range(1, n_questions + 1):
+            resp = (row.get(f"#{q} Student Response") or "").strip().upper()
+            correcta = key.get(str(q))
+            points[q] = 1.0 if (resp and correcta and resp == correcta) else 0.0
+    else:
+        for q in range(1, n_questions + 1):
+            col = f"#{q} Points Earned"
+            val = row.get(col)
+            try:
+                points[q] = float(val) if val not in (None, "") else 0.0
+            except ValueError:
+                points[q] = 0.0
 
     areas_out = []
     total_correct = 0.0
@@ -223,7 +250,14 @@ def main():
             areas = answer_keys[grade][session]["areas"]
             n_q = answer_keys[grade][session]["total"]
             key = answer_keys[grade][session]["key"]
-            rows = load_zipgrade_csv(zip_path, grade, session)
+
+            resp_letra_path = RESP_LETRA_FILES.get((grade, session))
+            from_letters = resp_letra_path is not None
+            if from_letters:
+                rows = load_response_letras_csv(resp_letra_path)
+                print(f"  (grado {grade} {session}: recalificando desde respuesta-letra {resp_letra_path.name})")
+            else:
+                rows = load_zipgrade_csv(zip_path, grade, session)
 
             matched = 0
             unmatched = 0
@@ -251,7 +285,7 @@ def main():
                     continue
 
                 matched += 1
-                areas_out, pct_total = score_student_session(row, areas, n_q, key)
+                areas_out, pct_total = score_student_session(row, areas, n_q, key, from_letters)
 
                 sid = matricula or f"{grade}-{zid}"
                 student_key = (grade, sid)
