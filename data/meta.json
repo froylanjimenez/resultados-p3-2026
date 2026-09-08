@@ -1,5 +1,5 @@
 {
-  "generado": "2026-09-08T15:29:15",
+  "generado": "2026-09-08T15:52:05",
   "grados": [
     "6",
     "7",
@@ -9,21 +9,13 @@
     "11"
   ],
   "grupos_por_grado": {
-    "10": [
-      "10A",
-      "10B",
-      "10C",
-      "10D",
-      "10E",
-      "10F"
-    ],
-    "9": [
-      "9A",
-      "9B",
-      "9C",
-      "9D",
-      "9E",
-      "9F"
+    "8": [
+      "8A",
+      "8B",
+      "8C",
+      "8D",
+      "8E",
+      "8F"
     ],
     "11": [
       "11A",
@@ -49,13 +41,21 @@
       "6E",
       "6F"
     ],
-    "8": [
-      "8A",
-      "8B",
-      "8C",
-      "8D",
-      "8E",
-      "8F"
+    "9": [
+      "9A",
+      "9B",
+      "9C",
+      "9D",
+      "9E",
+      "9F"
+    ],
+    "10": [
+      "10A",
+      "10B",
+      "10C",
+      "10D",
+      "10E",
+      "10F"
     ]
   },
   "areas_por_grado": {
@@ -131,10 +131,10 @@
       "session1": [
         "MATEMATICAS",
         "FILOSOFIA",
+        "C. POLÍTICAS",
         "LENGUA CASTELLANA",
         "ÉTICA",
-        "CIENCIAS SOCIALES",
-        "C. POLÍTICAS"
+        "CIENCIAS SOCIALES"
       ],
       "session2": [
         "QUÍMICA",
@@ -150,10 +150,10 @@
       "session1": [
         "MATEMATICAS",
         "FILOSOFIA",
+        "C. POLÍTICAS",
         "LENGUA CASTELLANA",
         "ÉTICA",
-        "CIENCIAS SOCIALES",
-        "C. POLÍTICAS"
+        "CIENCIAS SOCIALES"
       ],
       "session2": [
         "QUÍMICA",

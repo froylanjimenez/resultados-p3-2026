@@ -74,6 +74,63 @@ CLAVE_OVERRIDES = {
     ("9", "session1"): {24: "D", 25: "A", 26: "C", 27: "D"},
 }
 
+# La tabla de respuestas lista las areas en un orden distinto al que
+# realmente tienen en el cuadernillo impreso (Cuadernillo 1, sesion 1) de
+# grados 10 y 11: "C. POLÍTICAS" quedo al final de la tabla (preguntas
+# 73-78) cuando en el cuadernillo real va justo despues de FILOSOFIA
+# (preguntas 27-32), y LENGUA CASTELLANA/ÉTICA/CIENCIAS SOCIALES se corren
+# en consecuencia. El contenido y la clave de cada area (su lista interna
+# de respuestas) esta correcta, solo el ORDEN/POSICION de los bloques esta
+# mal. Confirmado leyendo el cuadernillo real
+# (Cuadernillos_grados 10_1era sesion_IIIP.pdf /
+# Cuadernillos_grados 11_1era sesion.pdf: "CIENCIAS POLÍTICAS" aparece en
+# la página 8/7, antes que "LENGUA CASTELLANA") y con el consenso de
+# respuestas de los estudiantes: las 6 preguntas de C. POLÍTICAS
+# reubicadas en 27-32 coinciden 6/6 con la letra mas marcada por los
+# estudiantes (55-80% de consenso) en ambos grados.
+#
+# Nota adicional (solo grado 11): el cuadernillo impreso de grado 11 ADEMAS
+# repite por error la numeracion 53-58 (una vez para ÉTICA, otra vez para
+# CIENCIAS SOCIALES) y termina impreso en "72" en vez de "78". Esto no
+# cambia la correccion aplicada aqui -- las respuestas de los estudiantes
+# muestran que igual llenaron las burbujas físicas 53-78 en orden
+# secuencial (con algo mas de preguntas en blanco al final, 73-78, por la
+# confusion), asi que la burbuja fisica sigue siendo la que manda, no el
+# numero impreso.
+#
+# clave: (grado, sesion) -> lista de nombres de area en el ORDEN REAL
+REORDER_AREAS = {
+    ("10", "session1"): ["MATEMATICAS", "FILOSOFIA", "C. POLÍTICAS", "LENGUA CASTELLANA", "ÉTICA", "CIENCIAS SOCIALES"],
+    ("11", "session1"): ["MATEMATICAS", "FILOSOFIA", "C. POLÍTICAS", "LENGUA CASTELLANA", "ÉTICA", "CIENCIAS SOCIALES"],
+}
+
+
+def reorder_areas(areas, key, new_order):
+    """Reordena bloques de area completos (cada uno con su propia lista
+    interna de claves intacta) segun new_order, recalculando su rango real
+    de preguntas (start/end) y remapeando `key` a la nueva numeracion."""
+    by_name = {a["area"]: a for a in areas}
+    faltantes = set(new_order) - set(by_name)
+    if faltantes:
+        raise ValueError(f"REORDER_AREAS: no se encontraron las areas {faltantes}")
+
+    new_areas = []
+    new_key = {}
+    cursor = 1
+    for name in new_order:
+        a = by_name[name]
+        n = a["end"] - a["start"] + 1
+        new_start, new_end = cursor, cursor + n - 1
+        for offset in range(n):
+            old_q = a["start"] + offset
+            new_q = new_start + offset
+            if str(old_q) in key:
+                new_key[str(new_q)] = key[str(old_q)]
+        new_areas.append({"area": name, "start": new_start, "end": new_end})
+        cursor = new_end + 1
+
+    return new_areas, new_key
+
 
 def norm_clave(v):
     if v is None:
@@ -181,6 +238,11 @@ def main():
 
             s1_areas, s1_key = build_areas_and_key(s1_rows, grade, "session1")
             s2_areas, s2_key = build_areas_and_key(s2_rows, grade, "session2")
+
+            new_order = REORDER_AREAS.get((grade, "session1"))
+            if new_order:
+                s1_areas, s1_key = reorder_areas(s1_areas, s1_key, new_order)
+                print(f"  grado {grade} session1: areas reordenadas a {new_order}")
 
             # "total" = ultima columna fisica a leer del CSV de ZipGrade (el
             # maximo "end" de area), NO len(key) -- si una pregunta en medio

@@ -39,6 +39,8 @@ ZIP_S2 = BASE / "Resultados_sesion2.zip"
 RESP_LETRA_FILES = {
     ("9", "session2"): BASE / "NovenoIIIP-S2-all-Nombre-ResptLetra-2026-09-08 19_12_34.csv",
     ("9", "session1"): BASE / "Noveno_sesion_1-all-Quiz Format 2026-09-08 01_12-2026-09-08 18_14_49 - Noveno_sesion_1-all-Quiz Format 2026-09-08 01_12-2026-09-08 18_14_49.csv",
+    ("10", "session1"): BASE / "Decimo_sesion_1-all-Quiz Format 2026-09-08 01_12-2026-09-08 19_48_26.csv",
+    ("11", "session1"): BASE / "Once_sesion_1-all-Quiz Format 2026-09-08 01_12-2026-09-08 19_48_52.csv",
 }
 
 BUILD_DIR = Path(__file__).parent
