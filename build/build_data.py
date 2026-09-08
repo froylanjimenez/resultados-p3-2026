@@ -298,8 +298,28 @@ def main():
     UNMATCHED_REPORT.write_text("\n".join(unmatched_lines) + "\n", encoding="utf-8")
     print(f"\nReporte de no coincidencias: {UNMATCHED_REPORT} ({len(unmatched_lines)} filas)")
 
+    # ---- posiciones (ranking) por grupo y por grado, segun porcentaje_general ----
+    def asignar_posiciones(recs, campo):
+        ordenados = sorted(recs, key=lambda r: r["porcentaje_general"], reverse=True)
+        total = len(ordenados)
+        for i, r in enumerate(ordenados, start=1):
+            r.setdefault("posicion", {})[campo] = {"puesto": i, "de": total}
+
+    por_grupo_recs = {}
+    por_grado_recs = {}
+    for rec in estudiantes.values():
+        if rec["porcentaje_general"] is None:
+            continue
+        por_grupo_recs.setdefault(rec["grupo"], []).append(rec)
+        por_grado_recs.setdefault(rec["grado"], []).append(rec)
+    for recs in por_grupo_recs.values():
+        asignar_posiciones(recs, "grupo")
+    for recs in por_grado_recs.values():
+        asignar_posiciones(recs, "grado")
+
     # ---- agregados ----
     by_grado_area = {}  # grado -> session -> area -> [pcts]
+    by_grupo_area = {}  # grupo -> session -> area -> [pcts]
     by_grado = {}  # grado -> [pcts generales]
     by_grupo = {}  # grupo -> [pcts generales]
     colegio_pcts = []
@@ -307,15 +327,18 @@ def main():
 
     for rec in estudiantes.values():
         g = rec["grado"]
+        gr = rec["grupo"]
         if rec["porcentaje_general"] is not None:
             by_grado.setdefault(g, []).append(rec["porcentaje_general"])
-            by_grupo.setdefault(rec["grupo"], []).append(rec["porcentaje_general"])
+            by_grupo.setdefault(gr, []).append(rec["porcentaje_general"])
             colegio_pcts.append(rec["porcentaje_general"])
         for session, sdata in rec["sesiones"].items():
             colegio_por_sesion[session].append(sdata["porcentaje_total"])
-            area_map = by_grado_area.setdefault(g, {}).setdefault(session, {})
+            area_map_grado = by_grado_area.setdefault(g, {}).setdefault(session, {})
+            area_map_grupo = by_grupo_area.setdefault(gr, {}).setdefault(session, {})
             for a in sdata["areas"]:
-                area_map.setdefault(a["area"], []).append(a["porcentaje"])
+                area_map_grado.setdefault(a["area"], []).append(a["porcentaje"])
+                area_map_grupo.setdefault(a["area"], []).append(a["porcentaje"])
 
     def avg(lst):
         return round(sum(lst) / len(lst), 1) if lst else None
@@ -332,7 +355,20 @@ def main():
             g: {s: {a: avg(v) for a, v in amap.items()} for s, amap in sessions.items()}
             for g, sessions in by_grado_area.items()
         },
+        "por_grupo_area": {
+            gr: {s: {a: avg(v) for a, v in amap.items()} for s, amap in sessions.items()}
+            for gr, sessions in by_grupo_area.items()
+        },
     }
+
+    # indice global de areas: nombre de area -> lista de (grado, sesion) donde aparece
+    areas_globales = {}
+    for g, sess in promedios["por_area"].items():
+        for session, amap in sess.items():
+            for area in amap:
+                areas_globales.setdefault(area, []).append({"grado": g, "session": session})
+    for area in areas_globales:
+        areas_globales[area].sort(key=lambda x: int(x["grado"]))
 
     meta = {
         "generado": datetime.now().isoformat(timespec="seconds"),
@@ -345,6 +381,7 @@ def main():
             }
             for g in answer_keys
         },
+        "areas_globales": areas_globales,
     }
 
     DATA_DIR.mkdir(exist_ok=True)

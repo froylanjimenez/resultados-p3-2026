@@ -1,5 +1,5 @@
 {
-  "generado": "2026-09-08T11:10:08",
+  "generado": "2026-09-08T11:30:56",
   "grados": [
     "6",
     "7",
@@ -9,6 +9,14 @@
     "11"
   ],
   "grupos_por_grado": {
+    "8": [
+      "8A",
+      "8B",
+      "8C",
+      "8D",
+      "8E",
+      "8F"
+    ],
     "9": [
       "9A",
       "9B",
@@ -17,13 +25,13 @@
       "9E",
       "9F"
     ],
-    "7": [
-      "7A",
-      "7B",
-      "7C",
-      "7D",
-      "7E",
-      "7F"
+    "10": [
+      "10A",
+      "10B",
+      "10C",
+      "10D",
+      "10E",
+      "10F"
     ],
     "6": [
       "6A",
@@ -33,21 +41,13 @@
       "6E",
       "6F"
     ],
-    "8": [
-      "8A",
-      "8B",
-      "8C",
-      "8D",
-      "8E",
-      "8F"
-    ],
-    "10": [
-      "10A",
-      "10B",
-      "10C",
-      "10D",
-      "10E",
-      "10F"
+    "7": [
+      "7A",
+      "7B",
+      "7C",
+      "7D",
+      "7E",
+      "7F"
     ],
     "11": [
       "11A",
@@ -165,5 +165,317 @@
         "TECNOLOGÍA"
       ]
     }
+  },
+  "areas_globales": {
+    "MATEMATICAS": [
+      {
+        "grado": "6",
+        "session": "session1"
+      },
+      {
+        "grado": "7",
+        "session": "session1"
+      },
+      {
+        "grado": "8",
+        "session": "session1"
+      },
+      {
+        "grado": "9",
+        "session": "session1"
+      },
+      {
+        "grado": "10",
+        "session": "session1"
+      },
+      {
+        "grado": "11",
+        "session": "session1"
+      }
+    ],
+    "ÉTICA": [
+      {
+        "grado": "6",
+        "session": "session1"
+      },
+      {
+        "grado": "7",
+        "session": "session1"
+      },
+      {
+        "grado": "8",
+        "session": "session1"
+      },
+      {
+        "grado": "9",
+        "session": "session1"
+      },
+      {
+        "grado": "10",
+        "session": "session1"
+      },
+      {
+        "grado": "11",
+        "session": "session1"
+      }
+    ],
+    "LENGUA CASTELLANA": [
+      {
+        "grado": "6",
+        "session": "session1"
+      },
+      {
+        "grado": "7",
+        "session": "session1"
+      },
+      {
+        "grado": "8",
+        "session": "session1"
+      },
+      {
+        "grado": "9",
+        "session": "session1"
+      },
+      {
+        "grado": "10",
+        "session": "session1"
+      },
+      {
+        "grado": "11",
+        "session": "session1"
+      }
+    ],
+    "ED. FISICA": [
+      {
+        "grado": "6",
+        "session": "session1"
+      },
+      {
+        "grado": "7",
+        "session": "session1"
+      },
+      {
+        "grado": "8",
+        "session": "session1"
+      },
+      {
+        "grado": "9",
+        "session": "session1"
+      },
+      {
+        "grado": "10",
+        "session": "session2"
+      },
+      {
+        "grado": "11",
+        "session": "session2"
+      }
+    ],
+    "CIENCIAS SOCIALES": [
+      {
+        "grado": "6",
+        "session": "session1"
+      },
+      {
+        "grado": "7",
+        "session": "session1"
+      },
+      {
+        "grado": "8",
+        "session": "session1"
+      },
+      {
+        "grado": "9",
+        "session": "session1"
+      },
+      {
+        "grado": "10",
+        "session": "session1"
+      },
+      {
+        "grado": "11",
+        "session": "session1"
+      }
+    ],
+    "GESTION": [
+      {
+        "grado": "6",
+        "session": "session2"
+      },
+      {
+        "grado": "7",
+        "session": "session2"
+      },
+      {
+        "grado": "8",
+        "session": "session2"
+      },
+      {
+        "grado": "9",
+        "session": "session2"
+      }
+    ],
+    "CIENCIAS NATURALES": [
+      {
+        "grado": "6",
+        "session": "session2"
+      },
+      {
+        "grado": "7",
+        "session": "session2"
+      },
+      {
+        "grado": "8",
+        "session": "session2"
+      },
+      {
+        "grado": "9",
+        "session": "session2"
+      }
+    ],
+    "ARTÍSTICA": [
+      {
+        "grado": "6",
+        "session": "session2"
+      },
+      {
+        "grado": "7",
+        "session": "session2"
+      },
+      {
+        "grado": "8",
+        "session": "session2"
+      },
+      {
+        "grado": "9",
+        "session": "session2"
+      },
+      {
+        "grado": "10",
+        "session": "session2"
+      },
+      {
+        "grado": "11",
+        "session": "session2"
+      }
+    ],
+    "INGLÉS": [
+      {
+        "grado": "6",
+        "session": "session2"
+      },
+      {
+        "grado": "7",
+        "session": "session2"
+      },
+      {
+        "grado": "8",
+        "session": "session2"
+      },
+      {
+        "grado": "9",
+        "session": "session2"
+      },
+      {
+        "grado": "10",
+        "session": "session2"
+      },
+      {
+        "grado": "11",
+        "session": "session2"
+      }
+    ],
+    "RELIGION": [
+      {
+        "grado": "6",
+        "session": "session2"
+      },
+      {
+        "grado": "7",
+        "session": "session2"
+      },
+      {
+        "grado": "8",
+        "session": "session2"
+      },
+      {
+        "grado": "9",
+        "session": "session2"
+      },
+      {
+        "grado": "10",
+        "session": "session2"
+      },
+      {
+        "grado": "11",
+        "session": "session2"
+      }
+    ],
+    "TECNOLOGÍA": [
+      {
+        "grado": "6",
+        "session": "session2"
+      },
+      {
+        "grado": "7",
+        "session": "session2"
+      },
+      {
+        "grado": "8",
+        "session": "session2"
+      },
+      {
+        "grado": "9",
+        "session": "session2"
+      },
+      {
+        "grado": "10",
+        "session": "session2"
+      },
+      {
+        "grado": "11",
+        "session": "session2"
+      }
+    ],
+    "FILOSOFIA": [
+      {
+        "grado": "10",
+        "session": "session1"
+      },
+      {
+        "grado": "11",
+        "session": "session1"
+      }
+    ],
+    "C. POLÍTICAS": [
+      {
+        "grado": "10",
+        "session": "session1"
+      },
+      {
+        "grado": "11",
+        "session": "session1"
+      }
+    ],
+    "QUÍMICA": [
+      {
+        "grado": "10",
+        "session": "session2"
+      },
+      {
+        "grado": "11",
+        "session": "session2"
+      }
+    ],
+    "FÍSICA": [
+      {
+        "grado": "10",
+        "session": "session2"
+      },
+      {
+        "grado": "11",
+        "session": "session2"
+      }
+    ]
   }
 }

@@ -143,6 +143,8 @@
   <div class="tabs no-print">
     <button class="tab-btn active" data-tab="buscar">🔍 Buscar estudiante</button>
     <button class="tab-btn" data-tab="promedios">📈 Promedios del colegio</button>
+    <button class="tab-btn" data-tab="docente">🧑‍🏫 Panel por área</button>
+    <button class="tab-btn" data-tab="grupo">🏫 Panel de grupo</button>
     <button class="tab-btn" data-tab="csv">⬇️ Exportar CSV</button>
   </div>
 
@@ -199,6 +201,60 @@
       </div>
     </div>
     <div id="barsArea"></div>
+  </section>
+
+  <!-- PANEL DOCENTE (por area) -->
+  <section class="panel" id="tab-docente" hidden>
+    <h2>Panel por área — rendimiento entre grupos</h2>
+    <p style="color:var(--texto2);font-size:.85rem">Pensado para el docente de una asignatura: elige tu área y el grado para comparar los grupos y ver el ranking de estudiantes.</p>
+    <div class="row">
+      <div class="field">
+        <label>Área</label>
+        <select id="docArea"></select>
+      </div>
+      <div class="field">
+        <label>Grado</label>
+        <select id="docGrado"></select>
+      </div>
+    </div>
+    <div class="stat-grid" id="docStats"></div>
+    <h3>Promedio por grupo</h3>
+    <div id="docBarsGrupo"></div>
+    <h3>Ranking de estudiantes</h3>
+    <div style="max-height:420px;overflow-y:auto">
+      <table>
+        <thead><tr><th>#</th><th>Estudiante</th><th>Grupo</th><th>Aciertos</th><th>%</th></tr></thead>
+        <tbody id="docTablaBody"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- PANEL DE GRUPO (director de grupo) -->
+  <section class="panel" id="tab-grupo" hidden>
+    <h2>Panel de grupo — para el director de grupo</h2>
+    <p style="color:var(--texto2);font-size:.85rem">Elige el grado y el grupo para ver el desempeño general del salón, por área, y el listado de estudiantes ordenado por promedio.</p>
+    <div class="row">
+      <div class="field">
+        <label>Grado</label>
+        <select id="grpGrado"></select>
+      </div>
+      <div class="field">
+        <label>Grupo</label>
+        <select id="grpGrupo"></select>
+      </div>
+    </div>
+    <div class="stat-grid" id="grpStats"></div>
+    <h3>Promedio por área — Sesión 1</h3>
+    <div id="grpBarsS1"></div>
+    <h3>Promedio por área — Sesión 2</h3>
+    <div id="grpBarsS2"></div>
+    <h3>Estudiantes del grupo (ordenados por promedio general)</h3>
+    <div style="max-height:420px;overflow-y:auto">
+      <table>
+        <thead><tr><th>Puesto</th><th>Estudiante</th><th>%</th></tr></thead>
+        <tbody id="grpTablaBody"></tbody>
+      </table>
+    </div>
   </section>
 
   <!-- CSV -->
@@ -282,6 +338,8 @@ function poblarSelects() {
   actualizarGruposYAreas();
   actualizarCsvSelects();
   pintarBarsArea();
+  poblarPanelDocente();
+  poblarPanelGrupo();
 }
 
 function actualizarGruposYAreas() {
@@ -371,6 +429,45 @@ function pillClase(pct) {
   return 'bad';
 }
 
+function recomendacionArea(area, pct) {
+  if (pct >= 80) return `<strong>${area}</strong>: excelente desempeño (${pct}%). Sigue así.`;
+  if (pct >= 60) return `<strong>${area}</strong>: buen desempeño (${pct}%); repasa los temas con más fallos para consolidar.`;
+  if (pct >= 40) return `<strong>${area}</strong>: debe reforzar (${pct}%) — se recomienda repaso guiado y ejercicios adicionales.`;
+  return `<strong>${area}</strong>: refuerzo urgente (${pct}%) — se recomienda plan de nivelación y acompañamiento cercano.`;
+}
+
+function recomendacionGeneral(pct) {
+  if (pct >= 80) return 'Desempeño general excelente. Mantener el ritmo de estudio y buscar retos adicionales.';
+  if (pct >= 60) return 'Desempeño general bueno. Con repaso constante en las áreas más débiles puede mejorar aún más.';
+  if (pct >= 40) return 'Desempeño general en proceso. Se recomienda un plan de refuerzo enfocado en las áreas más débiles.';
+  return 'Desempeño general bajo. Se recomienda acompañamiento cercano y un plan de nivelación prioritario.';
+}
+
+function renderPosicion(e) {
+  if (!e.posicion) return '';
+  const g = e.posicion.grupo, gr = e.posicion.grado;
+  return `<p style="color:var(--texto2)">
+    Puesto en el grupo: <strong>${g.puesto} de ${g.de}</strong> ·
+    Puesto en el grado: <strong>${gr.puesto} de ${gr.de}</strong>
+  </p>`;
+}
+
+function renderRecomendaciones(e) {
+  const todasAreas = [];
+  Object.values(e.sesiones).forEach(sdata => {
+    sdata.areas.forEach(a => todasAreas.push(a));
+  });
+  todasAreas.sort((a, b) => a.porcentaje - b.porcentaje);
+  const prioritarias = todasAreas.filter(a => a.porcentaje < 60).slice(0, 3);
+  const itemsHtml = (prioritarias.length ? prioritarias : todasAreas.slice(0, 1))
+    .map(a => `<li>${recomendacionArea(a.area, a.porcentaje)}</li>`).join('');
+  return `<div class="area-block">
+    <h4>📌 Recomendaciones</h4>
+    <p>${recomendacionGeneral(e.porcentaje_general)}</p>
+    <ul>${itemsHtml}</ul>
+  </div>`;
+}
+
 function renderInforme() {
   const e = INFORME_ACTUAL;
   const sesionesHtml = Object.entries(e.sesiones).map(([sesionKey, sdata]) => {
@@ -393,6 +490,8 @@ function renderInforme() {
   document.getElementById('modalContent').innerHTML = `
     <h2>${e.nombre}</h2>
     <p style="color:var(--texto2)">Grado ${e.grado} · Grupo ${e.grupo} · Promedio general: <strong>${e.porcentaje_general != null ? e.porcentaje_general + '%' : '—'}</strong></p>
+    ${renderPosicion(e)}
+    ${renderRecomendaciones(e)}
     <div class="informe-toggle no-print">
       <button class="tab-btn ${MODO_INFORME === 'sencillo' ? 'active' : ''}" id="btnSencillo">Sencillo</button>
       <button class="tab-btn ${MODO_INFORME === 'completo' ? 'active' : ''}" id="btnCompleto">Completo</button>
@@ -440,6 +539,128 @@ function pintarBarsArea() {
   }).join('');
 }
 
+// ---------- PANEL DOCENTE (por area) ----------
+function poblarPanelDocente() {
+  const areaSel = document.getElementById('docArea');
+  const areas = Object.keys(META.areas_globales).sort((a, b) => a.localeCompare(b));
+  areaSel.innerHTML = areas.map(a => `<option value="${a}">${a}</option>`).join('');
+  areaSel.addEventListener('change', () => { poblarDocGrados(); pintarPanelDocente(); });
+  document.getElementById('docGrado').addEventListener('change', pintarPanelDocente);
+  poblarDocGrados();
+  pintarPanelDocente();
+}
+
+function poblarDocGrados() {
+  const area = document.getElementById('docArea').value;
+  const opciones = META.areas_globales[area] || [];
+  document.getElementById('docGrado').innerHTML = opciones
+    .map(o => `<option value="${o.grado}" data-session="${o.session}">Grado ${o.grado}</option>`).join('');
+}
+
+function pintarPanelDocente() {
+  const area = document.getElementById('docArea').value;
+  const gradoSelect = document.getElementById('docGrado');
+  const grado = gradoSelect.value;
+  const opt = gradoSelect.selectedOptions[0];
+  if (!opt) return;
+  const sesion = opt.dataset.session;
+
+  const estGrado = ESTUDIANTES.filter(e => e.grado === grado && e.sesiones[sesion]);
+  const filas = estGrado.map(e => {
+    const a = e.sesiones[sesion].areas.find(a => a.area === area);
+    return a ? { nombre: e.nombre, grupo: e.grupo, correctas: a.correctas, total: a.total, pct: a.porcentaje } : null;
+  }).filter(Boolean).sort((a, b) => b.pct - a.pct);
+
+  const promGrado = filas.length ? Math.round(filas.reduce((s, f) => s + f.pct, 0) / filas.length * 10) / 10 : 0;
+  const porGrupo = {};
+  filas.forEach(f => { (porGrupo[f.grupo] = porGrupo[f.grupo] || []).push(f.pct); });
+  const gruposOrdenados = Object.entries(porGrupo)
+    .map(([g, v]) => [g, Math.round(v.reduce((s, x) => s + x, 0) / v.length * 10) / 10])
+    .sort((a, b) => b[1] - a[1]);
+  const mejor = gruposOrdenados[0];
+  const peor = gruposOrdenados[gruposOrdenados.length - 1];
+
+  document.getElementById('docStats').innerHTML = `
+    <div class="stat-box"><div class="num">${promGrado}%</div><div class="lbl">Promedio grado ${grado} en ${area}</div></div>
+    <div class="stat-box"><div class="num">${mejor ? mejor[0] : '—'}</div><div class="lbl">Mejor grupo (${mejor ? mejor[1] : '—'}%)</div></div>
+    <div class="stat-box"><div class="num">${peor ? peor[0] : '—'}</div><div class="lbl">Grupo a reforzar (${peor ? peor[1] : '—'}%)</div></div>
+  `;
+
+  document.getElementById('docBarsGrupo').innerHTML = gruposOrdenados.map(([g, pct]) => `
+    <div class="bar-row">
+      <div class="lbl">${g}</div>
+      <div class="bar-track"><div class="bar-fill" style="width:${pct}%"></div></div>
+      <div class="bar-pct">${pct}%</div>
+    </div>`).join('');
+
+  document.getElementById('docTablaBody').innerHTML = filas.map((f, i) => `
+    <tr>
+      <td>${i + 1}</td><td>${f.nombre}</td><td>${f.grupo}</td>
+      <td>${f.correctas}/${f.total}</td>
+      <td><span class="pill ${pillClase(f.pct)}">${f.pct}%</span></td>
+    </tr>`).join('');
+}
+
+// ---------- PANEL DE GRUPO (director) ----------
+function poblarPanelGrupo() {
+  const gradoSel = document.getElementById('grpGrado');
+  gradoSel.innerHTML = META.grados.map(g => `<option value="${g}">${g}</option>`).join('');
+  gradoSel.addEventListener('change', () => { poblarGrpGrupos(); pintarPanelGrupo(); });
+  document.getElementById('grpGrupo').addEventListener('change', pintarPanelGrupo);
+  poblarGrpGrupos();
+  pintarPanelGrupo();
+}
+
+function poblarGrpGrupos() {
+  const grado = document.getElementById('grpGrado').value;
+  const grupos = META.grupos_por_grado[grado] || [];
+  document.getElementById('grpGrupo').innerHTML = grupos.map(g => `<option value="${g}">${g}</option>`).join('');
+}
+
+function pintarPanelGrupo() {
+  const grado = document.getElementById('grpGrado').value;
+  const grupo = document.getElementById('grpGrupo').value;
+  if (!grupo) return;
+
+  const estudiantesGrupo = ESTUDIANTES.filter(e => e.grupo === grupo)
+    .sort((a, b) => (b.porcentaje_general ?? -1) - (a.porcentaje_general ?? -1));
+
+  const promGrupo = PROMEDIOS.por_grupo[grupo] ?? 0;
+  const promColegio = PROMEDIOS.colegio.promedio_general ?? 0;
+  document.getElementById('grpStats').innerHTML = `
+    <div class="stat-box"><div class="num">${promGrupo}%</div><div class="lbl">Promedio del grupo ${grupo}</div></div>
+    <div class="stat-box"><div class="num">${estudiantesGrupo.length}</div><div class="lbl">Estudiantes</div></div>
+    <div class="stat-box"><div class="num">${promColegio}%</div><div class="lbl">Promedio del colegio</div></div>
+  `;
+
+  const areasS1 = (META.areas_por_grado[grado] || {}).session1 || [];
+  const areasS2 = (META.areas_por_grado[grado] || {}).session2 || [];
+  const datosS1 = (PROMEDIOS.por_grupo_area[grupo] || {}).session1 || {};
+  const datosS2 = (PROMEDIOS.por_grupo_area[grupo] || {}).session2 || {};
+
+  const pintarBarrasArea = (areas, datos) => areas.map(a => {
+    const pct = datos[a] ?? 0;
+    return `<div class="bar-row">
+      <div class="lbl">${a}</div>
+      <div class="bar-track"><div class="bar-fill" style="width:${pct}%"></div></div>
+      <div class="bar-pct">${pct}%</div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('grpBarsS1').innerHTML = pintarBarrasArea(areasS1, datosS1);
+  document.getElementById('grpBarsS2').innerHTML = pintarBarrasArea(areasS2, datosS2);
+
+  document.getElementById('grpTablaBody').innerHTML = estudiantesGrupo.map((e, i) => `
+    <tr>
+      <td>${i + 1}</td>
+      <td><a href="#" class="grp-link" data-id="${e.grado}|${e.id}">${e.nombre}</a></td>
+      <td><span class="pill ${pillClase(e.porcentaje_general ?? 0)}">${e.porcentaje_general != null ? e.porcentaje_general + '%' : '—'}</span></td>
+    </tr>`).join('');
+  document.querySelectorAll('.grp-link').forEach(a => {
+    a.addEventListener('click', ev => { ev.preventDefault(); abrirInforme(a.dataset.id); });
+  });
+}
+
 // ---------- CSV ----------
 function descargarCsv() {
   const grado = document.getElementById('csvGrado').value;
@@ -478,7 +699,7 @@ document.querySelectorAll('.tab-btn[data-tab]').forEach(btn => {
   btn.addEventListener('click', () => {
     document.querySelectorAll('.tab-btn[data-tab]').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
-    ['buscar', 'promedios', 'csv'].forEach(t => {
+    ['buscar', 'promedios', 'docente', 'grupo', 'csv'].forEach(t => {
       document.getElementById('tab-' + t).hidden = (t !== btn.dataset.tab);
     });
   });
