@@ -1,9 +1,9 @@
 {
   "colegio": {
-    "promedio_general": 53.6,
+    "promedio_general": 54.6,
     "por_sesion": {
       "session1": 56.0,
-      "session2": 51.2
+      "session2": 53.2
     },
     "n_estudiantes": 1107
   },
@@ -13,7 +13,7 @@
     "8": 60.0,
     "9": 60.3,
     "10": 43.9,
-    "11": 52.5
+    "11": 58.9
   },
   "por_grupo": {
     "6B": 46.8,
@@ -46,12 +46,12 @@
     "10C": 46.0,
     "10F": 40.8,
     "10E": 41.9,
-    "11A": 48.4,
-    "11B": 55.3,
-    "11C": 53.3,
-    "11D": 53.8,
-    "11E": 53.2,
-    "11F": 51.7
+    "11A": 54.8,
+    "11B": 62.4,
+    "11C": 59.6,
+    "11D": 60.9,
+    "11E": 59.0,
+    "11F": 57.6
   },
   "por_area": {
     "6": {
@@ -152,8 +152,8 @@
       },
       "session2": {
         "QUÍMICA": 49.6,
-        "ED. FISICA": 14.0,
-        "FÍSICA": 24.5,
+        "FÍSICA": 57.5,
+        "ED. FISICA": 95.5,
         "ARTÍSTICA": 80.3,
         "RELIGION": 92.7,
         "INGLÉS": 42.9,
@@ -695,8 +695,8 @@
       },
       "session2": {
         "QUÍMICA": 46.4,
-        "ED. FISICA": 13.2,
-        "FÍSICA": 22.5,
+        "FÍSICA": 57.5,
+        "ED. FISICA": 94.3,
         "ARTÍSTICA": 79.9,
         "RELIGION": 92.0,
         "INGLÉS": 38.3,
@@ -714,8 +714,8 @@
       },
       "session2": {
         "QUÍMICA": 45.6,
-        "ED. FISICA": 11.3,
-        "FÍSICA": 24.3,
+        "FÍSICA": 62.9,
+        "ED. FISICA": 94.7,
         "ARTÍSTICA": 92.0,
         "RELIGION": 97.3,
         "INGLÉS": 45.6,
@@ -733,8 +733,8 @@
       },
       "session2": {
         "QUÍMICA": 51.7,
-        "ED. FISICA": 16.1,
-        "FÍSICA": 24.1,
+        "FÍSICA": 55.6,
+        "ED. FISICA": 94.8,
         "ARTÍSTICA": 74.1,
         "RELIGION": 91.4,
         "INGLÉS": 43.3,
@@ -752,8 +752,8 @@
       },
       "session2": {
         "QUÍMICA": 55.2,
-        "ED. FISICA": 13.7,
-        "FÍSICA": 23.6,
+        "FÍSICA": 62.9,
+        "ED. FISICA": 94.0,
         "ARTÍSTICA": 81.5,
         "RELIGION": 90.5,
         "INGLÉS": 44.8,
@@ -771,8 +771,8 @@
       },
       "session2": {
         "QUÍMICA": 45.8,
-        "ED. FISICA": 17.8,
-        "FÍSICA": 25.8,
+        "FÍSICA": 53.3,
+        "ED. FISICA": 97.3,
         "ARTÍSTICA": 80.1,
         "RELIGION": 91.4,
         "INGLÉS": 43.7,
@@ -790,8 +790,8 @@
       },
       "session2": {
         "QUÍMICA": 52.6,
-        "ED. FISICA": 11.3,
-        "FÍSICA": 26.7,
+        "FÍSICA": 54.1,
+        "ED. FISICA": 97.6,
         "ARTÍSTICA": 75.6,
         "RELIGION": 94.6,
         "INGLÉS": 42.3,

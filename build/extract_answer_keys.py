@@ -98,10 +98,23 @@ CLAVE_OVERRIDES = {
 # confusion), asi que la burbuja fisica sigue siendo la que manda, no el
 # numero impreso.
 #
+# Mismo tipo de error, pero en la sesion 2 (Cuadernillo 2) de grado 11
+# unicamente: "FÍSICA" y "ED. FISICA" estan intercambiadas. La tabla las
+# lista como ED.FISICA(16-21, 6p) luego FÍSICA(22-36, 15p), pero el
+# cuadernillo real de grado 11
+# (Cuadernillo_grados 11_2da sesion_IIIP.pdf) tiene FÍSICA primero
+# (termodinamica, 16-30, 15p) y ED. FISICA despues (baile moderno/gimnasia,
+# 31-36, 6p) -- el orden opuesto. Grado 10 SI tiene ED.FISICA antes que
+# FÍSICA en su cuadernillo real (verificado, coincide con su tabla; no se
+# toca). Confirmado con el consenso de respuestas de grado 11: las 6
+# preguntas de ED. FISICA reubicadas en 31-36 coinciden 6/6 con la letra
+# mas marcada por los estudiantes, con consenso casi unanime (94-98%).
+#
 # clave: (grado, sesion) -> lista de nombres de area en el ORDEN REAL
 REORDER_AREAS = {
     ("10", "session1"): ["MATEMATICAS", "FILOSOFIA", "C. POLÍTICAS", "LENGUA CASTELLANA", "ÉTICA", "CIENCIAS SOCIALES"],
     ("11", "session1"): ["MATEMATICAS", "FILOSOFIA", "C. POLÍTICAS", "LENGUA CASTELLANA", "ÉTICA", "CIENCIAS SOCIALES"],
+    ("11", "session2"): ["QUÍMICA", "FÍSICA", "ED. FISICA", "ARTÍSTICA", "RELIGION", "INGLÉS", "TECNOLOGÍA"],
 }
 
 
@@ -243,6 +256,11 @@ def main():
             if new_order:
                 s1_areas, s1_key = reorder_areas(s1_areas, s1_key, new_order)
                 print(f"  grado {grade} session1: areas reordenadas a {new_order}")
+
+            new_order2 = REORDER_AREAS.get((grade, "session2"))
+            if new_order2:
+                s2_areas, s2_key = reorder_areas(s2_areas, s2_key, new_order2)
+                print(f"  grado {grade} session2: areas reordenadas a {new_order2}")
 
             # "total" = ultima columna fisica a leer del CSV de ZipGrade (el
             # maximo "end" de area), NO len(key) -- si una pregunta en medio
