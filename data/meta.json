@@ -1,0 +1,169 @@
+{
+  "generado": "2026-09-08T11:10:08",
+  "grados": [
+    "6",
+    "7",
+    "8",
+    "9",
+    "10",
+    "11"
+  ],
+  "grupos_por_grado": {
+    "9": [
+      "9A",
+      "9B",
+      "9C",
+      "9D",
+      "9E",
+      "9F"
+    ],
+    "7": [
+      "7A",
+      "7B",
+      "7C",
+      "7D",
+      "7E",
+      "7F"
+    ],
+    "6": [
+      "6A",
+      "6B",
+      "6C",
+      "6D",
+      "6E",
+      "6F"
+    ],
+    "8": [
+      "8A",
+      "8B",
+      "8C",
+      "8D",
+      "8E",
+      "8F"
+    ],
+    "10": [
+      "10A",
+      "10B",
+      "10C",
+      "10D",
+      "10E",
+      "10F"
+    ],
+    "11": [
+      "11A",
+      "11B",
+      "11C",
+      "11D",
+      "11E",
+      "11F"
+    ]
+  },
+  "areas_por_grado": {
+    "6": {
+      "session1": [
+        "MATEMATICAS",
+        "ÉTICA",
+        "LENGUA CASTELLANA",
+        "ED. FISICA",
+        "CIENCIAS SOCIALES"
+      ],
+      "session2": [
+        "GESTION",
+        "CIENCIAS NATURALES",
+        "ARTÍSTICA",
+        "INGLÉS",
+        "RELIGION",
+        "TECNOLOGÍA"
+      ]
+    },
+    "7": {
+      "session1": [
+        "MATEMATICAS",
+        "ÉTICA",
+        "LENGUA CASTELLANA",
+        "ED. FISICA",
+        "CIENCIAS SOCIALES"
+      ],
+      "session2": [
+        "GESTION",
+        "CIENCIAS NATURALES",
+        "ARTÍSTICA",
+        "INGLÉS",
+        "RELIGION",
+        "TECNOLOGÍA"
+      ]
+    },
+    "8": {
+      "session1": [
+        "MATEMATICAS",
+        "ÉTICA",
+        "LENGUA CASTELLANA",
+        "ED. FISICA",
+        "CIENCIAS SOCIALES"
+      ],
+      "session2": [
+        "GESTION",
+        "CIENCIAS NATURALES",
+        "ARTÍSTICA",
+        "INGLÉS",
+        "RELIGION",
+        "TECNOLOGÍA"
+      ]
+    },
+    "9": {
+      "session1": [
+        "MATEMATICAS",
+        "ÉTICA",
+        "LENGUA CASTELLANA",
+        "ED. FISICA",
+        "CIENCIAS SOCIALES"
+      ],
+      "session2": [
+        "GESTION",
+        "CIENCIAS NATURALES",
+        "ARTÍSTICA",
+        "INGLÉS",
+        "RELIGION",
+        "TECNOLOGÍA"
+      ]
+    },
+    "10": {
+      "session1": [
+        "MATEMATICAS",
+        "FILOSOFIA",
+        "LENGUA CASTELLANA",
+        "ÉTICA",
+        "CIENCIAS SOCIALES",
+        "C. POLÍTICAS"
+      ],
+      "session2": [
+        "QUÍMICA",
+        "ED. FISICA",
+        "FÍSICA",
+        "ARTÍSTICA",
+        "RELIGION",
+        "INGLÉS",
+        "TECNOLOGÍA"
+      ]
+    },
+    "11": {
+      "session1": [
+        "MATEMATICAS",
+        "FILOSOFIA",
+        "LENGUA CASTELLANA",
+        "ÉTICA",
+        "CIENCIAS SOCIALES",
+        "C. POLÍTICAS"
+      ],
+      "session2": [
+        "QUÍMICA",
+        "ED. FISICA",
+        "FÍSICA",
+        "ARTÍSTICA",
+        "RELIGION",
+        "INGLÉS",
+        "TECNOLOGÍA"
+      ]
+    }
+  }
+}

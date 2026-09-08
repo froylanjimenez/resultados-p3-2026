@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Resultados III Periodo 2026 - CESUM</title>
+<style>
+  :root {
+    --verde: #1e8449;
+    --verde2: #27ae60;
+    --azul: #1565C0;
+    --texto: #2c3e50;
+    --texto2: #7f8c8d;
+    --borde: #ecf0f1;
+    --ok: #27ae60;
+    --warn: #f39c12;
+    --bad: #e74c3c;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #eafaf1 0%, #eaf2f8 100%);
+    color: var(--texto);
+    padding: 24px 12px 60px;
+  }
+  .wrap { max-width: 980px; margin: 0 auto; }
+  header {
+    background: linear-gradient(135deg, var(--verde) 0%, var(--verde2) 100%);
+    color: white;
+    border-radius: 16px;
+    padding: 22px 26px;
+    margin-bottom: 20px;
+    box-shadow: 0 10px 30px rgba(30,132,73,0.25);
+  }
+  header h1 { margin: 0 0 4px; font-size: 1.4rem; }
+  header p { margin: 0; opacity: .9; font-size: .9rem; }
+
+  .tabs { display: flex; gap: 8px; margin-bottom: 18px; flex-wrap: wrap; }
+  .tab-btn {
+    border: none; background: white; color: var(--texto);
+    padding: 10px 18px; border-radius: 999px; cursor: pointer;
+    font-size: .9rem; font-weight: 600; box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    transition: all .2s;
+  }
+  .tab-btn.active { background: var(--verde); color: white; }
+
+  .panel {
+    background: white; border-radius: 16px; padding: 22px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.06); margin-bottom: 20px;
+  }
+  .panel h2 { margin-top: 0; font-size: 1.1rem; }
+  [hidden] { display: none !important; }
+
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: end; margin-bottom: 14px; }
+  .field { display: flex; flex-direction: column; gap: 4px; }
+  .field label { font-size: .78rem; color: var(--texto2); font-weight: 600; }
+  input[type=text], select {
+    padding: 9px 12px; border: 1px solid #dfe6e9; border-radius: 8px;
+    font-size: .9rem; min-width: 160px; font-family: inherit;
+  }
+  select[multiple] { min-height: 110px; }
+  button.primary {
+    background: linear-gradient(135deg, var(--verde) 0%, var(--verde2) 100%);
+    color: white; border: none; padding: 10px 18px; border-radius: 8px;
+    cursor: pointer; font-weight: 600; font-size: .9rem;
+  }
+  button.primary:hover { filter: brightness(1.05); }
+  button.ghost {
+    background: #f4f6f6; color: var(--texto); border: 1px solid #dfe6e9;
+    padding: 8px 14px; border-radius: 8px; cursor: pointer; font-size: .85rem;
+  }
+
+  .result-card {
+    background: linear-gradient(135deg, #f8f9fa 0%, #eafaf1 100%);
+    border-radius: 10px; padding: 14px 16px; margin-bottom: 10px;
+    border-left: 5px solid var(--verde); cursor: pointer; transition: all .2s;
+  }
+  .result-card:hover { transform: translateX(4px); box-shadow: 0 5px 16px rgba(0,0,0,0.08); }
+  .result-card .nombre { font-weight: 700; }
+  .result-card .meta { font-size: .8rem; color: var(--texto2); }
+  .result-card .pct { float: right; font-weight: 700; }
+
+  table { width: 100%; border-collapse: collapse; font-size: .85rem; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--borde); }
+  th { color: var(--texto2); font-weight: 600; font-size: .78rem; text-transform: uppercase; }
+
+  .stat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 16px; }
+  .stat-box { background: #f4f6f6; border-radius: 10px; padding: 14px; text-align: center; }
+  .stat-box .num { font-size: 1.5rem; font-weight: 700; color: var(--verde); }
+  .stat-box .lbl { font-size: .75rem; color: var(--texto2); }
+
+  .bar-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; font-size: .85rem; }
+  .bar-row .lbl { width: 190px; flex-shrink: 0; }
+  .bar-track { flex: 1; background: var(--borde); border-radius: 6px; height: 14px; overflow: hidden; }
+  .bar-fill { height: 100%; background: linear-gradient(90deg, var(--verde) 0%, var(--verde2) 100%); }
+  .bar-pct { width: 48px; text-align: right; font-weight: 700; }
+
+  .pill { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: .72rem; font-weight: 700; }
+  .pill.ok { background: #d4efdf; color: var(--ok); }
+  .pill.warn { background: #fdebd0; color: #b9770e; }
+  .pill.bad { background: #fadbd8; color: var(--bad); }
+
+  .modal-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.5);
+    display: flex; align-items: flex-start; justify-content: center;
+    overflow-y: auto; padding: 30px 12px; z-index: 50;
+  }
+  .modal-box {
+    background: white; border-radius: 14px; max-width: 720px; width: 100%;
+    padding: 24px; box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+  }
+  .modal-box .close-x { float: right; background: none; border: none; font-size: 1.3rem; cursor: pointer; color: var(--texto2); }
+  .informe-toggle { display: flex; gap: 8px; margin: 10px 0 18px; }
+  .q-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(30px,1fr)); gap: 4px; margin-top: 6px; }
+  .q-cell {
+    width: 28px; height: 28px; border-radius: 6px; display: flex; align-items: center;
+    justify-content: center; font-size: .68rem; font-weight: 700; color: white;
+  }
+  .q-cell.ok { background: var(--ok); }
+  .q-cell.bad { background: var(--bad); }
+
+  .area-block { margin-bottom: 16px; }
+  .area-block h4 { margin: 0 0 6px; font-size: .88rem; }
+
+  footer { text-align: center; color: var(--texto2); font-size: .78rem; margin-top: 24px; }
+
+  @media print {
+    body { background: white; padding: 0; }
+    .tabs, header, #tab-buscar, #tab-promedios, #tab-csv, .no-print { display: none !important; }
+    .modal-overlay { position: static; background: none; padding: 0; }
+    .modal-box { box-shadow: none; max-width: 100%; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>📊 Consulta de Resultados — III Periodo 2026</h1>
+    <p>I.E. Concentración del Sur de Montelíbano (CESUM) · Grados 6° a 11°</p>
+  </header>
+
+  <div class="tabs no-print">
+    <button class="tab-btn active" data-tab="buscar">🔍 Buscar estudiante</button>
+    <button class="tab-btn" data-tab="promedios">📈 Promedios del colegio</button>
+    <button class="tab-btn" data-tab="csv">⬇️ Exportar CSV</button>
+  </div>
+
+  <!-- BUSCAR -->
+  <section class="panel" id="tab-buscar">
+    <h2>Buscar por nombre o filtrar por grado / grupo / área</h2>
+    <div class="row">
+      <div class="field" style="flex:1">
+        <label>Nombre o apellido</label>
+        <input type="text" id="inpNombre" placeholder="Ej: Laura Aguirre">
+      </div>
+      <div class="field">
+        <label>Grado</label>
+        <select id="selGrado"><option value="">Todos</option></select>
+      </div>
+      <div class="field">
+        <label>Grupo</label>
+        <select id="selGrupo"><option value="">Todos</option></select>
+      </div>
+      <div class="field">
+        <label>Sesión (para el área)</label>
+        <select id="selSesion">
+          <option value="session1">Sesión 1</option>
+          <option value="session2">Sesión 2</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Área</label>
+        <select id="selArea"><option value="">Todas</option></select>
+      </div>
+      <button class="primary" id="btnBuscar">Buscar</button>
+    </div>
+    <div id="resultados"></div>
+  </section>
+
+  <!-- PROMEDIOS -->
+  <section class="panel" id="tab-promedios" hidden>
+    <h2>Promedios generales del colegio</h2>
+    <div class="stat-grid" id="statColegio"></div>
+    <h3>Promedio por grado</h3>
+    <div id="barsGrado"></div>
+    <h3>Promedio por área (elige grado y sesión)</h3>
+    <div class="row">
+      <div class="field">
+        <label>Grado</label>
+        <select id="selGradoArea"></select>
+      </div>
+      <div class="field">
+        <label>Sesión</label>
+        <select id="selSesionArea">
+          <option value="session1">Sesión 1</option>
+          <option value="session2">Sesión 2</option>
+        </select>
+      </div>
+    </div>
+    <div id="barsArea"></div>
+  </section>
+
+  <!-- CSV -->
+  <section class="panel" id="tab-csv" hidden>
+    <h2>Exportar notas a CSV</h2>
+    <p style="color:var(--texto2);font-size:.85rem">Elige un grado, una sesión, una o varias áreas y uno o varios grupos. El promedio exportado es el % de aciertos por área.</p>
+    <div class="row">
+      <div class="field">
+        <label>Grado</label>
+        <select id="csvGrado"></select>
+      </div>
+      <div class="field">
+        <label>Sesión</label>
+        <select id="csvSesion">
+          <option value="session1">Sesión 1</option>
+          <option value="session2">Sesión 2</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Área(s) — Ctrl/Cmd+clic para varias</label>
+        <select id="csvAreas" multiple></select>
+      </div>
+      <div class="field">
+        <label>Grupo(s) — Ctrl/Cmd+clic para varios</label>
+        <select id="csvGrupos" multiple></select>
+      </div>
+    </div>
+    <button class="primary" id="btnCsv">Descargar CSV</button>
+  </section>
+
+  <footer>Generado automáticamente a partir de los resultados de ZipGrade · III Periodo 2026</footer>
+</div>
+
+<!-- MODAL INFORME -->
+<div class="modal-overlay no-print" id="modalInforme" hidden>
+  <div class="modal-box" id="modalBox">
+    <button class="close-x no-print" id="btnCerrarModal">✕</button>
+    <div id="modalContent"></div>
+  </div>
+</div>
+
+<script>
+let ESTUDIANTES = [];
+let PROMEDIOS = null;
+let META = null;
+
+function norm(s) {
+  return (s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+}
+
+async function cargarDatos() {
+  const [est, prom, meta] = await Promise.all([
+    fetch('data/estudiantes.json').then(r => r.json()),
+    fetch('data/promedios.json').then(r => r.json()),
+    fetch('data/meta.json').then(r => r.json()),
+  ]);
+  ESTUDIANTES = est;
+  PROMEDIOS = prom;
+  META = meta;
+  poblarSelects();
+  pintarPromedios();
+}
+
+function poblarSelects() {
+  const grados = META.grados;
+  const fill = (el, opts, placeholder) => {
+    el.innerHTML = (placeholder ? `<option value="">${placeholder}</option>` : '') +
+      opts.map(o => `<option value="${o}">${o}</option>`).join('');
+  };
+  fill(document.getElementById('selGrado'), grados, 'Todos');
+  fill(document.getElementById('selGradoArea'), grados, null);
+  fill(document.getElementById('csvGrado'), grados, null);
+
+  document.getElementById('selGrado').addEventListener('change', actualizarGruposYAreas);
+  document.getElementById('selSesion').addEventListener('change', actualizarGruposYAreas);
+  document.getElementById('selGradoArea').addEventListener('change', pintarBarsArea);
+  document.getElementById('selSesionArea').addEventListener('change', pintarBarsArea);
+  document.getElementById('csvGrado').addEventListener('change', actualizarCsvSelects);
+  document.getElementById('csvSesion').addEventListener('change', actualizarCsvSelects);
+
+  actualizarGruposYAreas();
+  actualizarCsvSelects();
+  pintarBarsArea();
+}
+
+function actualizarGruposYAreas() {
+  const grado = document.getElementById('selGrado').value;
+  const sesion = document.getElementById('selSesion').value;
+  const grupoSel = document.getElementById('selGrupo');
+  const areaSel = document.getElementById('selArea');
+
+  const grupos = grado ? (META.grupos_por_grado[grado] || []) : Object.values(META.grupos_por_grado).flat();
+  grupoSel.innerHTML = '<option value="">Todos</option>' + grupos.map(g => `<option value="${g}">${g}</option>`).join('');
+
+  const areas = grado ? (META.areas_por_grado[grado][sesion] || []) : [];
+  areaSel.innerHTML = '<option value="">Todas</option>' + areas.map(a => `<option value="${a}">${a}</option>`).join('');
+}
+
+function actualizarCsvSelects() {
+  const grado = document.getElementById('csvGrado').value;
+  const sesion = document.getElementById('csvSesion').value;
+  const areas = META.areas_por_grado[grado] ? META.areas_por_grado[grado][sesion] : [];
+  const grupos = META.grupos_por_grado[grado] || [];
+  document.getElementById('csvAreas').innerHTML = areas.map(a => `<option value="${a}" selected>${a}</option>`).join('');
+  document.getElementById('csvGrupos').innerHTML = grupos.map(g => `<option value="${g}" selected>${g}</option>`).join('');
+}
+
+// ---------- BUSCAR ----------
+function buscar() {
+  const q = norm(document.getElementById('inpNombre').value.trim());
+  const grado = document.getElementById('selGrado').value;
+  const grupo = document.getElementById('selGrupo').value;
+  const sesion = document.getElementById('selSesion').value;
+  const area = document.getElementById('selArea').value;
+
+  let filtrados = ESTUDIANTES.filter(e => {
+    if (grado && e.grado !== grado) return false;
+    if (grupo && e.grupo !== grupo) return false;
+    if (q && !norm(e.nombre).includes(q)) return false;
+    if (area && !(e.sesiones[sesion] && e.sesiones[sesion].areas.some(a => a.area === area))) return false;
+    return true;
+  });
+
+  filtrados.sort((a, b) => a.nombre.localeCompare(b.nombre));
+
+  const cont = document.getElementById('resultados');
+  if (!filtrados.length) {
+    cont.innerHTML = '<p style="color:var(--texto2)">No se encontraron estudiantes con esos criterios.</p>';
+    return;
+  }
+  const limitados = filtrados.slice(0, 200);
+  cont.innerHTML = `<p style="color:var(--texto2);font-size:.85rem">${filtrados.length} resultado(s)${filtrados.length > 200 ? ' (mostrando 200)' : ''}</p>` +
+    limitados.map(e => {
+      let pctShown = e.porcentaje_general;
+      let etiqueta = 'General';
+      if (area) {
+        const a = e.sesiones[sesion].areas.find(a => a.area === area);
+        pctShown = a ? a.porcentaje : null;
+        etiqueta = area;
+      }
+      return `<div class="result-card" data-id="${e.grado}|${e.id}">
+        <span class="pct">${pctShown != null ? pctShown + '%' : '—'}</span>
+        <div class="nombre">${e.nombre}</div>
+        <div class="meta">Grado ${e.grado} · Grupo ${e.grupo} · ${etiqueta}</div>
+      </div>`;
+    }).join('');
+
+  cont.querySelectorAll('.result-card').forEach(card => {
+    card.addEventListener('click', () => abrirInforme(card.dataset.id));
+  });
+}
+
+// ---------- INFORME ----------
+let INFORME_ACTUAL = null;
+let MODO_INFORME = 'sencillo';
+
+function abrirInforme(idCompuesto) {
+  const [grado, id] = idCompuesto.split('|');
+  const est = ESTUDIANTES.find(e => e.grado === grado && e.id === id);
+  if (!est) return;
+  INFORME_ACTUAL = est;
+  MODO_INFORME = 'sencillo';
+  renderInforme();
+  document.getElementById('modalInforme').hidden = false;
+}
+
+function pillClase(pct) {
+  if (pct >= 60) return 'ok';
+  if (pct >= 40) return 'warn';
+  return 'bad';
+}
+
+function renderInforme() {
+  const e = INFORME_ACTUAL;
+  const sesionesHtml = Object.entries(e.sesiones).map(([sesionKey, sdata]) => {
+    const areasHtml = sdata.areas.map(a => {
+      let detalle = '';
+      if (MODO_INFORME === 'completo') {
+        detalle = `<div class="q-grid">${a.preguntas.map(p =>
+          `<div class="q-cell ${p.correcta ? 'ok' : 'bad'}" title="Pregunta ${p.n} · clave: ${p.clave || '?'}">${p.n}</div>`
+        ).join('')}</div>`;
+      }
+      return `<div class="area-block">
+        <h4>${a.area} — <span class="pill ${pillClase(a.porcentaje)}">${a.correctas}/${a.total} (${a.porcentaje}%)</span></h4>
+        ${detalle}
+      </div>`;
+    }).join('');
+    const nombreSesion = sesionKey === 'session1' ? 'Sesión 1' : 'Sesión 2';
+    return `<h3>${nombreSesion} — Total: ${sdata.porcentaje_total}%</h3>${areasHtml}`;
+  }).join('<hr>');
+
+  document.getElementById('modalContent').innerHTML = `
+    <h2>${e.nombre}</h2>
+    <p style="color:var(--texto2)">Grado ${e.grado} · Grupo ${e.grupo} · Promedio general: <strong>${e.porcentaje_general != null ? e.porcentaje_general + '%' : '—'}</strong></p>
+    <div class="informe-toggle no-print">
+      <button class="tab-btn ${MODO_INFORME === 'sencillo' ? 'active' : ''}" id="btnSencillo">Sencillo</button>
+      <button class="tab-btn ${MODO_INFORME === 'completo' ? 'active' : ''}" id="btnCompleto">Completo</button>
+      <button class="ghost" id="btnImprimir" style="margin-left:auto">🖨️ Imprimir / Guardar PDF</button>
+    </div>
+    ${sesionesHtml}
+  `;
+  document.getElementById('btnSencillo').addEventListener('click', () => { MODO_INFORME = 'sencillo'; renderInforme(); });
+  document.getElementById('btnCompleto').addEventListener('click', () => { MODO_INFORME = 'completo'; renderInforme(); });
+  document.getElementById('btnImprimir').addEventListener('click', () => window.print());
+}
+
+// ---------- PROMEDIOS ----------
+function pintarPromedios() {
+  const c = PROMEDIOS.colegio;
+  document.getElementById('statColegio').innerHTML = `
+    <div class="stat-box"><div class="num">${c.promedio_general}%</div><div class="lbl">Promedio general</div></div>
+    <div class="stat-box"><div class="num">${c.por_sesion.session1 ?? '—'}%</div><div class="lbl">Sesión 1</div></div>
+    <div class="stat-box"><div class="num">${c.por_sesion.session2 ?? '—'}%</div><div class="lbl">Sesión 2</div></div>
+  `;
+  const grados = META.grados;
+  document.getElementById('barsGrado').innerHTML = grados.map(g => {
+    const pct = PROMEDIOS.por_grado[g] ?? 0;
+    return `<div class="bar-row">
+      <div class="lbl">Grado ${g}</div>
+      <div class="bar-track"><div class="bar-fill" style="width:${pct}%"></div></div>
+      <div class="bar-pct">${pct}%</div>
+    </div>`;
+  }).join('');
+}
+
+function pintarBarsArea() {
+  const grado = document.getElementById('selGradoArea').value;
+  const sesion = document.getElementById('selSesionArea').value;
+  if (!grado) return;
+  const areas = (META.areas_por_grado[grado] && META.areas_por_grado[grado][sesion]) || [];
+  const datos = (PROMEDIOS.por_area[grado] && PROMEDIOS.por_area[grado][sesion]) || {};
+  document.getElementById('barsArea').innerHTML = areas.map(a => {
+    const pct = datos[a] ?? 0;
+    return `<div class="bar-row">
+      <div class="lbl">${a}</div>
+      <div class="bar-track"><div class="bar-fill" style="width:${pct}%"></div></div>
+      <div class="bar-pct">${pct}%</div>
+    </div>`;
+  }).join('');
+}
+
+// ---------- CSV ----------
+function descargarCsv() {
+  const grado = document.getElementById('csvGrado').value;
+  const sesion = document.getElementById('csvSesion').value;
+  const areasSel = Array.from(document.getElementById('csvAreas').selectedOptions).map(o => o.value);
+  const gruposSel = Array.from(document.getElementById('csvGrupos').selectedOptions).map(o => o.value);
+
+  if (!areasSel.length || !gruposSel.length) {
+    alert('Selecciona al menos un área y un grupo.');
+    return;
+  }
+
+  const filas = [['Grado', 'Grupo', 'Nombre', 'Área', 'Correctas', 'Total', 'Porcentaje']];
+  ESTUDIANTES.filter(e => e.grado === grado && gruposSel.includes(e.grupo)).forEach(e => {
+    const sdata = e.sesiones[sesion];
+    if (!sdata) return;
+    sdata.areas.filter(a => areasSel.includes(a.area)).forEach(a => {
+      filas.push([e.grado, e.grupo, `"${e.nombre.replace(/"/g, '""')}"`, `"${a.area}"`, a.correctas, a.total, a.porcentaje]);
+    });
+  });
+
+  const csv = filas.map(f => f.join(',')).join('\r\n');
+  const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `notas_grado${grado}_${sesion}.csv`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+// ---------- TABS / EVENTOS ----------
+document.querySelectorAll('.tab-btn[data-tab]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab-btn[data-tab]').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    ['buscar', 'promedios', 'csv'].forEach(t => {
+      document.getElementById('tab-' + t).hidden = (t !== btn.dataset.tab);
+    });
+  });
+});
+
+document.getElementById('btnBuscar').addEventListener('click', buscar);
+document.getElementById('inpNombre').addEventListener('keydown', ev => { if (ev.key === 'Enter') buscar(); });
+document.getElementById('btnCsv').addEventListener('click', descargarCsv);
+document.getElementById('btnCerrarModal').addEventListener('click', () => { document.getElementById('modalInforme').hidden = true; });
+document.getElementById('modalInforme').addEventListener('click', ev => {
+  if (ev.target.id === 'modalInforme') document.getElementById('modalInforme').hidden = true;
+});
+
+cargarDatos();
+</script>
+</body>
+</html>

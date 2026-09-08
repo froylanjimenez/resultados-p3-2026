@@ -1,0 +1,26 @@
+{
+  "_comment": "Excepciones manuales: filas de ZipGrade que no se pueden unir por nombre. Cada entrada mapea un (grado, sesion, zipgrade_student_id) a la fila real del listado oficial (grado, matricula).",
+  "by_id": [
+    {
+      "grado": "7",
+      "session": "session1",
+      "zipgrade_id": "75660",
+      "matricula": "20190012",
+      "nota": "Emmanuel Moreno Arrieta, codigo manual 075600 segun indicaciones; en sesion1 ZipGrade quedo como 75660 (probable transposicion de digitos)."
+    },
+    {
+      "grado": "7",
+      "session": "session2",
+      "zipgrade_id": "75600",
+      "matricula": "20190012",
+      "nota": "Emmanuel Moreno Arrieta, codigo manual 075600 (coincide exacto sin el cero inicial) en sesion2."
+    },
+    {
+      "grado": "10",
+      "session": "session2",
+      "zipgrade_id": "0",
+      "matricula": "20160011",
+      "nota": "Farid Leonardo Bertel Castro. Sin evidencia numerica de que la fila anonima ID=0 sea el, pero el usuario pidio asignarsela explicitamente."
+    }
+  ]
+}
