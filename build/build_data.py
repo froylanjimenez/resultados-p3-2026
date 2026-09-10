@@ -106,15 +106,21 @@ def norm_grade_label(s):
 # ---------------------------------------------------------------------------
 def load_roster():
     """Devuelve:
-    roster_by_key: {(grado, matricula): {"nombre":..., "grado":..., "grupo":...}}
+    roster_by_key: {(grado, sid): {"nombre":..., "grado":..., "grupo":..., "sid":...}}
     roster_by_norm_name: {grado: {nombre_normalizado: record}}
     grupos_por_grado: {grado: [lista de grupos ordenada]}
+
+    En el listado oficial hay matriculas repetidas (dos estudiantes distintos
+    con la misma matricula). Antes eso colapsaba a ambos en un solo registro y
+    hacia desaparecer a uno del panel. Ahora, cuando una matricula se repite
+    dentro de un mismo grado, se genera un `sid` unico
+    (matricula-grupo-primerapellido) para cada estudiante; el resto conserva
+    `sid == matricula`.
     """
     wb = openpyxl.load_workbook(ROSTER_XLSX, data_only=True)
-    roster_by_key = {}
-    roster_by_norm_name = {g: {} for g in GRADE_NAME_MAP.values()}
     grupos_por_grado = {g: set() for g in set(GRADE_NAME_MAP.values())}
 
+    filas = []  # (grado, grupo_id, apellidos_nombres, matricula)
     for sheet_name in wb.sheetnames:
         ws = wb[sheet_name]
         grado_label = ws["H3"].value
@@ -139,18 +145,41 @@ def load_roster():
                 break
             matricula = ws.cell(row=r, column=5).value
             matricula = str(matricula).strip() if matricula is not None else None
-            nombre_fmt = str(apellidos_nombres).strip().title()
-
-            record = {"nombre": nombre_fmt, "grado": grado, "grupo": grupo_id}
-            if matricula:
-                roster_by_key[(grado, matricula)] = record
-            roster_by_norm_name[grado][norm(apellidos_nombres)] = {
-                **record,
-                "matricula": matricula,
-            }
+            filas.append((grado, grupo_id, str(apellidos_nombres).strip(), matricula))
             r += 1
 
-    grupos_por_grado = {g: sorted(v) for g, v in grupos_por_grado.items()}
+    # matriculas repetidas dentro de un mismo grado -> hay que desambiguar
+    conteo = {}
+    for grado, _, _, matricula in filas:
+        if matricula:
+            conteo[(grado, matricula)] = conteo.get((grado, matricula), 0) + 1
+    duplicadas = {k for k, n in conteo.items() if n > 1}
+
+    roster_by_key = {}
+    roster_by_norm_name = {g: {} for g in GRADE_NAME_MAP.values()}
+    for grado, grupo_id, apellidos_nombres, matricula in filas:
+        nombre_fmt = apellidos_nombres.title()
+        if matricula and (grado, matricula) in duplicadas:
+            primer_apellido = norm(apellidos_nombres).split(" ")[0] or "X"
+            sid = f"{matricula}-{grupo_id}-{primer_apellido}"
+            print(
+                f"AVISO: matricula {matricula} repetida en grado {grado}; "
+                f"{apellidos_nombres!r} recibe id sintetico {sid!r}"
+            )
+        else:
+            sid = matricula
+
+        record = {"nombre": nombre_fmt, "grado": grado, "grupo": grupo_id, "sid": sid}
+        if sid:
+            roster_by_key[(grado, sid)] = record
+        roster_by_norm_name[grado][norm(apellidos_nombres)] = {
+            **record,
+            "matricula": matricula,
+        }
+
+    grupos_por_grado = {
+        g: sorted(grupos_por_grado[g]) for g in sorted(grupos_por_grado, key=int)
+    }
     return roster_by_key, roster_by_norm_name, grupos_por_grado
 
 
@@ -162,7 +191,7 @@ def load_overrides():
     by_id = {}
     for entry in raw["by_id"]:
         key = (entry["grado"], entry["session"], str(entry["zipgrade_id"]))
-        by_id[key] = entry["matricula"]
+        by_id[key] = entry.get("sid") or entry["matricula"]
     return by_id
 
 
@@ -274,15 +303,15 @@ def main():
                 last = (row.get("Student Last Name") or "").strip()
                 zid = (row.get("Student ID") or "").strip()
 
-                matricula = overrides_by_id.get((grade, session, zid))
+                override_key = overrides_by_id.get((grade, session, zid))
                 roster_rec = None
-                if matricula:
-                    roster_rec = roster_by_key.get((grade, matricula))
+                if override_key:
+                    # el override apunta directo al sid del listado (matricula o
+                    # id sintetico si la matricula estaba repetida)
+                    roster_rec = roster_by_key.get((grade, override_key))
                 elif first or last:
                     name_key = norm(f"{last} {first}")
                     roster_rec = roster_by_norm_name[grade].get(name_key)
-                    if roster_rec:
-                        matricula = roster_rec.get("matricula")
 
                 if not roster_rec:
                     unmatched += 1
@@ -295,7 +324,7 @@ def main():
                 matched += 1
                 areas_out, pct_total = score_student_session(row, areas, n_q, key, from_letters)
 
-                sid = matricula or f"{grade}-{zid}"
+                sid = roster_rec.get("sid") or f"{grade}-{zid}"
                 student_key = (grade, sid)
                 if student_key not in estudiantes:
                     estudiantes[student_key] = {
