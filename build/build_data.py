@@ -40,6 +40,11 @@ RESP_LETRA_FILES = {
     ("9", "session2"): BASE / "NovenoIIIP-S2-all-Nombre-ResptLetra-2026-09-08 19_12_34.csv",
     ("9", "session1"): BASE / "Noveno_sesion_1-all-Quiz Format 2026-09-08 01_12-2026-09-08 18_14_49 - Noveno_sesion_1-all-Quiz Format 2026-09-08 01_12-2026-09-08 18_14_49.csv",
     ("10", "session1"): BASE / "Decimo_sesion_1-all-Quiz Format 2026-09-08 01_12-2026-09-08 19_48_26.csv",
+    # grado 10 sesion 2: la clave subida a ZipGrade tenia mal ED. FISICA
+    # (16-21), asi que "Points Earned" quedo mal para esa area -- se recalifica
+    # desde la respuesta letra-por-letra contra la clave corregida
+    # (ver FINAL_KEY_OVERRIDES en extract_answer_keys.py).
+    ("10", "session2"): BASE / "DecimoIIIP-S2-all-Nombre-ResptLetra-2026-09-10 19_07_17.csv",
     ("11", "session1"): BASE / "Once_sesion_1-all-Quiz Format 2026-09-08 01_12-2026-09-08 19_48_52.csv",
     ("11", "session2"): BASE / "UndecimoIIIP-S2-all-Nombre-ResptLetra-2026-09-08 20_58_14.csv",
 }

@@ -117,6 +117,56 @@ REORDER_AREAS = {
     ("11", "session2"): ["QUÍMICA", "FÍSICA", "ED. FISICA", "ARTÍSTICA", "RELIGION", "INGLÉS", "TECNOLOGÍA"],
 }
 
+# Correcciones de CLAVE que se aplican al FINAL, sobre la numeracion real y
+# definitiva de cada sesion (despues de DROP_DUPLICATE_ROWS, VOID_QUESTIONS y
+# REORDER_AREAS). Se usa cuando la clave que trae la tabla de respuestas fuente
+# esta equivocada -- no desalineada por conteo, sino con la letra incorrecta --
+# y hay evidencia independiente de la letra correcta.
+#
+# Grado 10, sesion 1, CIENCIAS SOCIALES (preguntas 59-78): la columna CLAVE de
+# estas 20 preguntas en la tabla de grado 10 estaba mal (con la clave original
+# el area promediaba 21.7%, por debajo del azar). Las 20 preguntas de CIENCIAS
+# SOCIALES son identicas -- mismo enunciado y mismo orden -- a las de grado 11
+# sesion 1 (cuadernillo combinado 10-11; verificado enunciado por enunciado:
+# g10 pregunta 59+i == g11 pregunta 53+i, i=0..19). La clave de grado 11 para
+# esas preguntas SI es correcta (area promedia 52%, coincide 18/20 con la
+# respuesta mas marcada por los estudiantes de grado 11) y ademas coincide
+# 18/20 con la respuesta mas marcada por los estudiantes de grado 10. Se
+# adopta esa clave de grado 11. Las 2 preguntas donde no coincide (59 y 62)
+# son las mismas 2 que los estudiantes de grado 11 tambien fallaron contra su
+# propia clave -- preguntas dificiles, no error de clave.
+#
+# Grado 10, sesion 1, ETICA pregunta 55: la clave de la tabla decia "A"
+# ("El individualismo, para que cada persona se defienda por si misma"), pero
+# la pregunta pide el valor etico que defienden los movimientos sindicales --
+# "individualismo" contradice el enunciado. El 75% de los estudiantes marco
+# "C" y solo el 9% marco "A"; el resto de ETICA tiene consenso casi unanime
+# (81-96%). Se corrige a "C".
+#
+# Grado 10, sesion 2, ED. FISICA (preguntas 16-21): la clave de la tabla
+# original (D,B,C,C,A,C) estaba mal -- el area promediaba 17.3%. La clave
+# correcta es A,C,D,A,B,C, confirmada por 3 fuentes: (1) el usuario la corrigio
+# en "TABLA DE RESPUESTAS _Grado 10_P3_2026.xlsx"; (2) el consenso de
+# respuestas de los estudiantes de grado 10 (93-98% marco esa letra, patron
+# tipico de Ed. Fisica); (3) es exactamente la clave que grado 11 ya tenia
+# para sus 6 preguntas de ED. FISICA (mismas preguntas). Con la correccion el
+# area pasa a 95.8%.
+#
+# clave: (grado, sesion) -> {pregunta (numeracion final): letra correcta}
+FINAL_KEY_OVERRIDES = {
+    ("10", "session1"): {
+        # ETICA
+        55: "C",
+        # CIENCIAS SOCIALES (59-78)
+        59: "B", 60: "A", 61: "B", 62: "D", 63: "C", 64: "B", 65: "C",
+        66: "B", 67: "B", 68: "B", 69: "C", 70: "D", 71: "C", 72: "C",
+        73: "C", 74: "D", 75: "B", 76: "C", 77: "D", 78: "A",
+    },
+    ("10", "session2"): {
+        16: "A", 17: "C", 18: "D", 19: "A", 20: "B", 21: "C",
+    },
+}
+
 
 def reorder_areas(areas, key, new_order):
     """Reordena bloques de area completos (cada uno con su propia lista
@@ -261,6 +311,21 @@ def main():
             if new_order2:
                 s2_areas, s2_key = reorder_areas(s2_areas, s2_key, new_order2)
                 print(f"  grado {grade} session2: areas reordenadas a {new_order2}")
+
+            # correcciones de clave sobre la numeracion final (post-reorder)
+            for sess_name, skey in (("session1", s1_key), ("session2", s2_key)):
+                fk = FINAL_KEY_OVERRIDES.get((grade, sess_name))
+                if not fk:
+                    continue
+                for q, letra in fk.items():
+                    if str(q) not in skey:
+                        raise ValueError(
+                            f"FINAL_KEY_OVERRIDES: grado {grade} {sess_name} "
+                            f"pregunta {q} no existe en la clave (¿cambió la fuente?)"
+                        )
+                    skey[str(q)] = letra
+                print(f"  grado {grade} {sess_name}: clave final corregida para "
+                      f"preguntas {sorted(fk)}")
 
             # "total" = ultima columna fisica a leer del CSV de ZipGrade (el
             # maximo "end" de area), NO len(key) -- si una pregunta en medio

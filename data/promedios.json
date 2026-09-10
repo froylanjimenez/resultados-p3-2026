@@ -1,9 +1,9 @@
 {
   "colegio": {
-    "promedio_general": 54.5,
+    "promedio_general": 55.6,
     "por_sesion": {
-      "session1": 56.0,
-      "session2": 53.1
+      "session1": 57.1,
+      "session2": 54.1
     },
     "n_estudiantes": 1116
   },
@@ -12,7 +12,7 @@
     "7": 56.6,
     "8": 60.0,
     "9": 60.2,
-    "10": 43.9,
+    "10": 51.2,
     "11": 58.9
   },
   "por_grupo": {
@@ -40,12 +40,12 @@
     "9C": 61.8,
     "9F": 55.4,
     "9E": 63.5,
-    "10A": 45.6,
-    "10D": 45.0,
-    "10B": 43.6,
-    "10C": 46.0,
-    "10F": 40.8,
-    "10E": 42.5,
+    "10A": 52.9,
+    "10D": 52.0,
+    "10B": 51.3,
+    "10C": 53.3,
+    "10F": 47.5,
+    "10E": 50.1,
     "11A": 54.8,
     "11B": 62.4,
     "11C": 59.6,
@@ -128,12 +128,12 @@
         "FILOSOFIA": 46.9,
         "C. POLÍTICAS": 68.3,
         "LENGUA CASTELLANA": 48.4,
-        "ÉTICA": 76.7,
-        "CIENCIAS SOCIALES": 21.7
+        "ÉTICA": 87.6,
+        "CIENCIAS SOCIALES": 50.2
       },
       "session2": {
         "QUÍMICA": 44.1,
-        "ED. FISICA": 17.3,
+        "ED. FISICA": 95.8,
         "FÍSICA": 26.7,
         "ARTÍSTICA": 86.9,
         "RELIGION": 72.5,
@@ -576,12 +576,12 @@
         "FILOSOFIA": 54.9,
         "C. POLÍTICAS": 74.1,
         "LENGUA CASTELLANA": 49.8,
-        "ÉTICA": 75.9,
-        "CIENCIAS SOCIALES": 22.0
+        "ÉTICA": 87.6,
+        "CIENCIAS SOCIALES": 50.6
       },
       "session2": {
         "QUÍMICA": 47.9,
-        "ED. FISICA": 17.3,
+        "ED. FISICA": 95.7,
         "FÍSICA": 27.2,
         "ARTÍSTICA": 88.3,
         "RELIGION": 72.2,
@@ -595,12 +595,12 @@
         "FILOSOFIA": 43.3,
         "C. POLÍTICAS": 68.9,
         "LENGUA CASTELLANA": 51.0,
-        "ÉTICA": 75.0,
-        "CIENCIAS SOCIALES": 22.8
+        "ÉTICA": 87.2,
+        "CIENCIAS SOCIALES": 48.2
       },
       "session2": {
         "QUÍMICA": 46.2,
-        "ED. FISICA": 17.8,
+        "ED. FISICA": 98.3,
         "FÍSICA": 26.0,
         "ARTÍSTICA": 86.1,
         "RELIGION": 80.6,
@@ -614,12 +614,12 @@
         "FILOSOFIA": 43.4,
         "C. POLÍTICAS": 73.8,
         "LENGUA CASTELLANA": 45.4,
-        "ÉTICA": 79.1,
-        "CIENCIAS SOCIALES": 21.1
+        "ÉTICA": 91.1,
+        "CIENCIAS SOCIALES": 53.6
       },
       "session2": {
         "QUÍMICA": 46.0,
-        "ED. FISICA": 17.3,
+        "ED. FISICA": 92.3,
         "FÍSICA": 24.1,
         "ARTÍSTICA": 86.9,
         "RELIGION": 74.4,
@@ -633,12 +633,12 @@
         "FILOSOFIA": 54.2,
         "C. POLÍTICAS": 75.0,
         "LENGUA CASTELLANA": 52.5,
-        "ÉTICA": 75.7,
-        "CIENCIAS SOCIALES": 23.3
+        "ÉTICA": 86.8,
+        "CIENCIAS SOCIALES": 50.8
       },
       "session2": {
         "QUÍMICA": 47.0,
-        "ED. FISICA": 16.7,
+        "ED. FISICA": 97.9,
         "FÍSICA": 30.0,
         "ARTÍSTICA": 91.7,
         "RELIGION": 71.5,
@@ -652,12 +652,12 @@
         "FILOSOFIA": 44.0,
         "C. POLÍTICAS": 52.0,
         "LENGUA CASTELLANA": 42.6,
-        "ÉTICA": 79.3,
-        "CIENCIAS SOCIALES": 21.0
+        "ÉTICA": 87.3,
+        "CIENCIAS SOCIALES": 45.6
       },
       "session2": {
         "QUÍMICA": 41.9,
-        "ED. FISICA": 16.7,
+        "ED. FISICA": 96.0,
         "FÍSICA": 28.3,
         "ARTÍSTICA": 82.0,
         "RELIGION": 60.0,
@@ -671,12 +671,12 @@
         "FILOSOFIA": 43.1,
         "C. POLÍTICAS": 65.5,
         "LENGUA CASTELLANA": 49.0,
-        "ÉTICA": 75.3,
-        "CIENCIAS SOCIALES": 20.0
+        "ÉTICA": 85.6,
+        "CIENCIAS SOCIALES": 51.9
       },
       "session2": {
         "QUÍMICA": 36.3,
-        "ED. FISICA": 17.8,
+        "ED. FISICA": 94.8,
         "FÍSICA": 25.3,
         "ARTÍSTICA": 86.8,
         "RELIGION": 74.1,
