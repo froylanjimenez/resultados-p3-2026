@@ -60,6 +60,8 @@
     font-size: .9rem; min-width: 160px; font-family: inherit;
   }
   select[multiple] { min-height: 110px; }
+  #csvModo { width: 340px; max-width: 100%; }
+  #tab-csv .row { align-items: flex-start; }
   button.primary {
     background: linear-gradient(135deg, var(--verde) 0%, var(--verde2) 100%);
     color: white; border: none; padding: 10px 18px; border-radius: 8px;
@@ -298,20 +300,26 @@
   <!-- CSV -->
   <section class="panel" id="tab-csv" hidden>
     <h2>Exportar notas a CSV</h2>
-    <p style="color:var(--texto2);font-size:.85rem">Elige un grado, una sesión, una o varias áreas y uno o varios grupos. El promedio exportado es el % de aciertos por área.</p>
     <div class="row">
+      <div class="field">
+        <label>Tipo de exportación</label>
+        <select id="csvModo">
+          <option value="area">Detalle por área (una fila por área)</option>
+          <option value="planilla">Planilla del grupo (una fila por estudiante, ambas sesiones)</option>
+        </select>
+      </div>
       <div class="field">
         <label>Grado</label>
         <select id="csvGrado"></select>
       </div>
-      <div class="field">
+      <div class="field" id="csvFieldSesion">
         <label>Sesión</label>
         <select id="csvSesion">
           <option value="session1">Sesión 1</option>
           <option value="session2">Sesión 2</option>
         </select>
       </div>
-      <div class="field">
+      <div class="field" id="csvFieldAreas">
         <label>Área(s) — Ctrl/Cmd+clic para varias</label>
         <select id="csvAreas" multiple></select>
       </div>
@@ -320,6 +328,7 @@
         <select id="csvGrupos" multiple></select>
       </div>
     </div>
+    <p id="csvAyuda" style="color:var(--texto2);font-size:.85rem"></p>
     <button class="primary" id="btnCsv">Descargar CSV</button>
   </section>
 
@@ -498,9 +507,11 @@ function poblarSelects() {
   document.getElementById('selSesionArea').addEventListener('change', pintarBarsArea);
   document.getElementById('csvGrado').addEventListener('change', actualizarCsvSelects);
   document.getElementById('csvSesion').addEventListener('change', actualizarCsvSelects);
+  document.getElementById('csvModo').addEventListener('change', actualizarCsvModo);
 
   actualizarGruposYAreas();
   actualizarCsvSelects();
+  actualizarCsvModo();
   pintarBarsArea();
   poblarPanelDocente();
   poblarPanelGrupo();
@@ -526,6 +537,17 @@ function actualizarCsvSelects() {
   const grupos = META.grupos_por_grado[grado] || [];
   document.getElementById('csvAreas').innerHTML = areas.map(a => `<option value="${a}" selected>${a}</option>`).join('');
   document.getElementById('csvGrupos').innerHTML = grupos.map(g => `<option value="${g}" selected>${g}</option>`).join('');
+}
+
+function actualizarCsvModo() {
+  const modo = document.getElementById('csvModo').value;
+  const esPlanilla = modo === 'planilla';
+  // en la planilla se exportan siempre las dos sesiones y todas las áreas
+  document.getElementById('csvFieldSesion').hidden = esPlanilla;
+  document.getElementById('csvFieldAreas').hidden = esPlanilla;
+  document.getElementById('csvAyuda').textContent = esPlanilla
+    ? 'Una fila por estudiante con el % de cada área en las dos sesiones, los totales por sesión y el promedio general. Elige el grado y uno o varios grupos.'
+    : 'Elige un grado, una sesión, una o varias áreas y uno o varios grupos. El valor exportado es el % de aciertos por área.';
 }
 
 // ---------- BUSCAR ----------
@@ -837,7 +859,33 @@ function pintarPanelGrupo() {
 }
 
 // ---------- CSV ----------
+function celdaCsv(v) {
+  const s = String(v == null ? '' : v);
+  return /[",\r\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+}
+
+function bajarCsv(filas, nombreArchivo) {
+  const csv = filas.map(f => f.map(celdaCsv).join(',')).join('\r\n');
+  const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = nombreArchivo;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
 function descargarCsv() {
+  if (document.getElementById('csvModo').value === 'planilla') {
+    descargarPlanilla();
+  } else {
+    descargarCsvPorArea();
+  }
+}
+
+function descargarCsvPorArea() {
   const grado = document.getElementById('csvGrado').value;
   const sesion = document.getElementById('csvSesion').value;
   const areasSel = Array.from(document.getElementById('csvAreas').selectedOptions).map(o => o.value);
@@ -849,24 +897,63 @@ function descargarCsv() {
   }
 
   const filas = [['Grado', 'Grupo', 'Nombre', 'Área', 'Correctas', 'Total', 'Porcentaje']];
-  ESTUDIANTES.filter(e => e.grado === grado && gruposSel.includes(e.grupo)).forEach(e => {
-    const sdata = e.sesiones[sesion];
-    if (!sdata) return;
-    sdata.areas.filter(a => areasSel.includes(a.area)).forEach(a => {
-      filas.push([e.grado, e.grupo, `"${e.nombre.replace(/"/g, '""')}"`, `"${a.area}"`, a.correctas, a.total, a.porcentaje]);
+  ESTUDIANTES
+    .filter(e => e.grado === grado && gruposSel.includes(e.grupo))
+    .sort((a, b) => a.grupo.localeCompare(b.grupo) || a.nombre.localeCompare(b.nombre))
+    .forEach(e => {
+      const sdata = e.sesiones[sesion];
+      if (!sdata) return;
+      sdata.areas.filter(a => areasSel.includes(a.area)).forEach(a => {
+        filas.push([e.grado, e.grupo, e.nombre, a.area, a.correctas, a.total, a.porcentaje]);
+      });
     });
-  });
 
-  const csv = filas.map(f => f.join(',')).join('\r\n');
-  const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8;' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `notas_grado${grado}_${sesion}.csv`;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
+  bajarCsv(filas, `notas_grado${grado}_${sesion}.csv`);
+}
+
+function descargarPlanilla() {
+  const grado = document.getElementById('csvGrado').value;
+  const gruposSel = Array.from(document.getElementById('csvGrupos').selectedOptions).map(o => o.value);
+  if (!gruposSel.length) {
+    alert('Selecciona al menos un grupo.');
+    return;
+  }
+
+  const areasS1 = (META.areas_por_grado[grado] || {}).session1 || [];
+  const areasS2 = (META.areas_por_grado[grado] || {}).session2 || [];
+
+  const header = ['Grado', 'Grupo', 'Nombre'];
+  areasS1.forEach(a => header.push(`S1 - ${a}`));
+  header.push('S1 - Total');
+  areasS2.forEach(a => header.push(`S2 - ${a}`));
+  header.push('S2 - Total');
+  header.push('Promedio general');
+  const filas = [header];
+
+  const pctArea = (e, sesion, area) => {
+    const sd = e.sesiones[sesion];
+    if (!sd) return '';
+    const a = sd.areas.find(x => x.area === area);
+    return a ? a.porcentaje : '';
+  };
+
+  ESTUDIANTES
+    .filter(e => e.grado === grado && gruposSel.includes(e.grupo))
+    .sort((a, b) => a.grupo.localeCompare(b.grupo) || a.nombre.localeCompare(b.nombre))
+    .forEach(e => {
+      const fila = [e.grado, e.grupo, e.nombre];
+      areasS1.forEach(a => fila.push(pctArea(e, 'session1', a)));
+      fila.push(e.sesiones.session1 ? e.sesiones.session1.porcentaje_total : '');
+      areasS2.forEach(a => fila.push(pctArea(e, 'session2', a)));
+      fila.push(e.sesiones.session2 ? e.sesiones.session2.porcentaje_total : '');
+      fila.push(e.porcentaje_general != null ? e.porcentaje_general : '');
+      filas.push(fila);
+    });
+
+  const nombre = gruposSel.length === 1
+    ? `planilla_${gruposSel[0]}.csv`
+    : `planilla_grado${grado}.csv`;
+  bajarCsv(filas, nombre);
 }
 
 // ---------- TABS / EVENTOS ----------
