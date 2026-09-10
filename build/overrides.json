@@ -21,6 +21,20 @@
       "zipgrade_id": "0",
       "sid": "20160011-10E-BERTEL",
       "nota": "Farid Leonardo Bertel Castro (10E). Comparte la matricula 20160011 con Keren Belen Franco Primera (10B) en el listado oficial, por eso el sid sintetico. Sin evidencia numerica de que la fila anonima ID=0 sea el, pero el usuario pidio asignarsela explicitamente."
+    },
+    {
+      "grado": "9",
+      "session": "session1",
+      "zipgrade_id": "95621",
+      "sid": "20170090",
+      "nota": "Shyra Mejia Perez (9E). Su hoja quedo sin nombre ni codigo en ZipGrade; el usuario confirmo que la fila anonima ID=95621 de sesion1 es de ella."
+    },
+    {
+      "grado": "9",
+      "session": "session2",
+      "zipgrade_id": "0",
+      "sid": "20170090",
+      "nota": "Shyra Mejia Perez (9E). Su hoja quedo sin nombre ni codigo en ZipGrade; el usuario confirmo que la fila anonima ID=0 de sesion2 es de ella."
     }
   ]
 }

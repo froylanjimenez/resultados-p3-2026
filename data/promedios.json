@@ -5,13 +5,13 @@
       "session1": 56.0,
       "session2": 53.1
     },
-    "n_estudiantes": 1115
+    "n_estudiantes": 1116
   },
   "por_grado": {
     "6": 46.0,
     "7": 56.6,
     "8": 60.0,
-    "9": 60.3,
+    "9": 60.2,
     "10": 43.9,
     "11": 58.9
   },
@@ -39,7 +39,7 @@
     "9B": 64.4,
     "9C": 61.8,
     "9F": 55.4,
-    "9E": 64.1,
+    "9E": 63.5,
     "10A": 45.6,
     "10D": 45.0,
     "10B": 43.6,
@@ -108,18 +108,18 @@
     "9": {
       "session1": {
         "MATEMATICAS": 29.1,
-        "ÉTICA": 89.4,
-        "LENGUA CASTELLANA": 82.5,
-        "ED. FISICA": 77.8,
+        "ÉTICA": 89.1,
+        "LENGUA CASTELLANA": 82.3,
+        "ED. FISICA": 77.7,
         "CIENCIAS SOCIALES": 59.9
       },
       "session2": {
         "GESTION": 85.1,
-        "CIENCIAS NATURALES": 56.4,
-        "ARTÍSTICA": 54.0,
+        "CIENCIAS NATURALES": 56.3,
+        "ARTÍSTICA": 53.9,
         "INGLÉS": 48.0,
         "RELIGION": 80.3,
-        "TECNOLOGÍA": 54.4
+        "TECNOLOGÍA": 54.5
       }
     },
     "10": {
@@ -555,19 +555,19 @@
     },
     "9E": {
       "session1": {
-        "MATEMATICAS": 27.4,
-        "ÉTICA": 96.5,
-        "LENGUA CASTELLANA": 85.3,
-        "ED. FISICA": 79.8,
-        "CIENCIAS SOCIALES": 71.4
+        "MATEMATICAS": 27.5,
+        "ÉTICA": 94.4,
+        "LENGUA CASTELLANA": 83.7,
+        "ED. FISICA": 79.0,
+        "CIENCIAS SOCIALES": 70.8
       },
       "session2": {
-        "GESTION": 89.7,
-        "CIENCIAS NATURALES": 65.0,
-        "ARTÍSTICA": 61.5,
-        "INGLÉS": 46.2,
-        "RELIGION": 79.9,
-        "TECNOLOGÍA": 53.5
+        "GESTION": 89.5,
+        "CIENCIAS NATURALES": 64.2,
+        "ARTÍSTICA": 60.6,
+        "INGLÉS": 46.3,
+        "RELIGION": 80.0,
+        "TECNOLOGÍA": 54.5
       }
     },
     "10A": {
