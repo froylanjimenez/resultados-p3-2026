@@ -37,7 +37,7 @@ ZIP_S2 = BASE / "Resultados_sesion2.zip"
 # puntos ya calculados por ZipGrade quedaron mal para las preguntas
 # posteriores al desfase, asi que hay que recalificar con la clave corregida.
 RESP_LETRA_FILES = {
-    ("9", "session2"): BASE / "NovenoIIIP-S2-all-Nombre-ResptLetra-2026-09-08 19_12_34.csv",
+    ("9", "session2"): BASE / "NovenoIIIP-S2-all-Nombre-ResptLetra-2026-09-13 01_39_01.csv",
     ("9", "session1"): BASE / "Noveno_sesion_1-all-Quiz Format 2026-09-08 01_12-2026-09-08 18_14_49 - Noveno_sesion_1-all-Quiz Format 2026-09-08 01_12-2026-09-08 18_14_49.csv",
     ("10", "session1"): BASE / "Decimo_sesion_1-all-Quiz Format 2026-09-08 01_12-2026-09-08 19_48_26.csv",
     # grado 10 sesion 2: la clave subida a ZipGrade tenia mal ED. FISICA
